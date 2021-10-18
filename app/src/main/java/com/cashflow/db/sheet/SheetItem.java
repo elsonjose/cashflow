@@ -1,21 +1,23 @@
-package com.cashflow.db;
+package com.cashflow.db.sheet;
 
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
-@Entity(tableName = "CashFlow")
-public class CashItem {
-
+@Entity(tableName = "BalanceSheet")
+public class SheetItem {
     @ColumnInfo(name = "id")
     @PrimaryKey(autoGenerate = true)
     private long id;
 
+    @ColumnInfo(name = "title")
+    private String title;
+
     @ColumnInfo(name = "desc")
     private String desc;
 
-    @ColumnInfo(name = "amount")
-    private double amount;
+    @ColumnInfo(name = "worth")
+    private double worth;
 
     @ColumnInfo(name = "type")
     private String type;
@@ -23,10 +25,11 @@ public class CashItem {
     @ColumnInfo(name = "time")
     private String time;
 
-    public CashItem(long id, String desc, double amount, String type, String time) {
+    public SheetItem(long id, String title, String desc, double worth, String type, String time) {
         this.id = id;
+        this.title = title;
         this.desc = desc;
-        this.amount = amount;
+        this.worth = worth;
         this.type = type;
         this.time = time;
     }
@@ -39,6 +42,14 @@ public class CashItem {
         this.id = id;
     }
 
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
     public String getDesc() {
         return desc;
     }
@@ -47,12 +58,12 @@ public class CashItem {
         this.desc = desc;
     }
 
-    public double getAmount() {
-        return amount;
+    public double getWorth() {
+        return worth;
     }
 
-    public void setAmount(double amount) {
-        this.amount = amount;
+    public void setWorth(double worth) {
+        this.worth = worth;
     }
 
     public String getType() {

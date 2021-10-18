@@ -1,4 +1,4 @@
-package com.cashflow.db;
+package com.cashflow.db.cashflow;
 
 import androidx.room.Dao;
 import androidx.room.Delete;

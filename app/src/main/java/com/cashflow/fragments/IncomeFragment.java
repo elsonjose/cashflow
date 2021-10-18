@@ -1,14 +1,11 @@
 package com.cashflow.fragments;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.room.Room;
@@ -21,8 +18,8 @@ import android.widget.TextView;
 import com.cashflow.R;
 import com.cashflow.activity.CashFlowActivity;
 import com.cashflow.adapter.CashFlowAdapter;
-import com.cashflow.db.CashFlowDatabase;
-import com.cashflow.db.CashItem;
+import com.cashflow.db.cashflow.CashFlowDatabase;
+import com.cashflow.db.cashflow.CashItem;
 import com.cashflow.interfaces.onChanged;
 import com.cashflow.interfaces.onDeleted;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;

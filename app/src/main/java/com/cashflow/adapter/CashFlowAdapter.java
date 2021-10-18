@@ -2,8 +2,6 @@ package com.cashflow.adapter;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.text.format.DateFormat;
-import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,8 +12,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.room.Room;
 
 import com.cashflow.R;
-import com.cashflow.db.CashFlowDatabase;
-import com.cashflow.db.CashItem;
+import com.cashflow.db.cashflow.CashFlowDatabase;
+import com.cashflow.db.cashflow.CashItem;
 import com.cashflow.fragments.ExpenseFragment;
 import com.cashflow.fragments.IncomeFragment;
 import com.cashflow.interfaces.onDeleted;
@@ -23,8 +21,6 @@ import com.cashflow.interfaces.onDeleted;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
-import java.util.TimeZone;
 
 public class CashFlowAdapter extends RecyclerView.Adapter<CashFlowAdapter.CashFlowViewHolder> {
 

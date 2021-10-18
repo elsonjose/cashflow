@@ -3,16 +3,13 @@ package com.cashflow.activity;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.room.Room;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
-import com.cashflow.MainActivity;
 import com.cashflow.R;
-import com.cashflow.db.CashFlowDatabase;
-import com.cashflow.db.CashItem;
+import com.cashflow.db.cashflow.CashFlowDatabase;
+import com.cashflow.db.cashflow.CashItem;
 import com.google.android.material.textfield.TextInputEditText;
 
 public class CashFlowActivity extends AppCompatActivity {
@@ -60,10 +57,4 @@ public class CashFlowActivity extends AppCompatActivity {
 
     }
 
-    @Override
-    public void onBackPressed() {
-        startActivity(new Intent(CashFlowActivity.this, MainActivity.class));
-        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-        finish();
-    }
 }

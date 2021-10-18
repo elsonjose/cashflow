@@ -1,7 +1,6 @@
 package com.cashflow;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
@@ -12,16 +11,13 @@ import androidx.viewpager.widget.ViewPager;
 
 import android.graphics.Color;
 import android.os.Bundle;
-import android.view.View;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.DecelerateInterpolator;
 import android.widget.TextView;
 
-import com.cashflow.db.CashFlowDatabase;
+import com.cashflow.db.cashflow.CashFlowDatabase;
 import com.cashflow.fragments.ExpenseFragment;
 import com.cashflow.fragments.IncomeFragment;
+import com.cashflow.fragments.SheetFragment;
 import com.cashflow.interfaces.onChanged;
-import com.cashflow.interfaces.onDeleted;
 import com.google.android.material.tabs.TabLayout;
 
 public class MainActivity extends AppCompatActivity implements onChanged {
@@ -100,6 +96,10 @@ public class MainActivity extends AppCompatActivity implements onChanged {
             if (position == 1) {
                 return new IncomeFragment();
             }
+            else if(position==2)
+            {
+                return new SheetFragment();
+            }
             return new ExpenseFragment();
         }
 
@@ -108,13 +108,14 @@ public class MainActivity extends AppCompatActivity implements onChanged {
             switch (position)
             {
                 case 1:return "Income";
+                case 2:return "Sheet";
                 default:return "Expense";
             }
         }
 
         @Override
         public int getCount() {
-            return 2;        }
+            return 3;        }
     }
 
 }

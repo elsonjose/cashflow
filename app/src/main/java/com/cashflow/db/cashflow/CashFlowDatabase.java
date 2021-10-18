@@ -1,4 +1,4 @@
-package com.cashflow.db;
+package com.cashflow.db.cashflow;
 
 import androidx.room.Database;
 import androidx.room.RoomDatabase;

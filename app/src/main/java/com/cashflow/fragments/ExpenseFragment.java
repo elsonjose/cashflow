@@ -18,8 +18,8 @@ import android.widget.TextView;
 import com.cashflow.R;
 import com.cashflow.activity.CashFlowActivity;
 import com.cashflow.adapter.CashFlowAdapter;
-import com.cashflow.db.CashFlowDatabase;
-import com.cashflow.db.CashItem;
+import com.cashflow.db.cashflow.CashFlowDatabase;
+import com.cashflow.db.cashflow.CashItem;
 import com.cashflow.interfaces.onChanged;
 import com.cashflow.interfaces.onDeleted;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -37,6 +37,8 @@ public class ExpenseFragment extends Fragment  implements onDeleted {
     public void onCreateCashFlow()
     {
         startActivity(new Intent(getContext(), CashFlowActivity.class).putExtra("type","expense"));
+        getActivity().overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        getActivity().finish();
     }
     View view;
     @Override
