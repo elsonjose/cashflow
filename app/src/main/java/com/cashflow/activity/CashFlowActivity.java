@@ -3,10 +3,12 @@ package com.cashflow.activity;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.room.Room;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
+import com.cashflow.MainActivity;
 import com.cashflow.R;
 import com.cashflow.db.cashflow.CashFlowDatabase;
 import com.cashflow.db.cashflow.CashItem;
@@ -33,7 +35,7 @@ public class CashFlowActivity extends AppCompatActivity {
             CashFlowDatabase database = Room.databaseBuilder(getApplicationContext(),CashFlowDatabase.class,"CashFlow").allowMainThreadQueries().build();
             double amountVal = Double.parseDouble(amount.getText().toString());
             String descVal = desc.getText().toString();
-            database.getCashFlowDao().addItem(new CashItem(0,descVal,amountVal,type,String.valueOf(System.currentTimeMillis())));
+            database.getCashFlowDao().addItem(new CashItem(0,descVal,amountVal,type,System.currentTimeMillis()));
             onBackPressed();
         }
 
@@ -57,4 +59,10 @@ public class CashFlowActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onBackPressed() {
+        startActivity(new Intent(CashFlowActivity.this, MainActivity.class).putExtra("type","income"));
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        finish();
+    }
 }

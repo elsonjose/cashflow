@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/view_mode_default"
+        android:title="Default" />
+
+    <item
+        android:id="@+id/view_mode_single"
+        android:title="Individually" />
+
+    <item
+        android:id="@+id/view_mode_weekly"
+        android:title="Weekly" />
+
+    <item
+        android:id="@+id/view_mode_monthly"
+        android:title="Monthly" />
+
+    <item
+        android:id="@+id/view_mode_yearly"
+        android:title="Yearly" />
+</menu>

@@ -1,14 +1,14 @@
-package com.cashflow.db.cashflow;
+package com.cashflow.db.reminder;
 
-import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
 
+import com.cashflow.db.cashflow.CashItem;
+
 import java.util.List;
 
-@Dao
-public interface CashFlowDao {
+public interface ReminderDao {
 
     @Insert
     public long addItem(CashItem cashItem);
@@ -36,5 +36,4 @@ public interface CashFlowDao {
 
     @Query("SELECT SUM(AMOUNT) FROM CASHFLOW WHERE TYPE==:t")
     public double getAmountSum(String t);
-
 }

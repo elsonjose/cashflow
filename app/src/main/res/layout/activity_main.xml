@@ -21,6 +21,42 @@
             android:textSize="20sp"
             android:textStyle="bold"/>
 
+        <LinearLayout
+            android:id="@+id/actionbar_btn_wrapper"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:layout_gravity="center_vertical|end"
+            android:layout_marginEnd="16dp"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/actionbar_add_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_baseline_add_circle_outline"
+                android:background="@android:color/transparent"
+                android:padding="4dp"
+                android:layout_marginEnd="8dp"/>
+
+            <ImageButton
+                android:id="@+id/actionbar_filter_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_outline_filter_alt"
+                android:background="@android:color/transparent"
+                android:padding="4dp"
+                android:layout_marginEnd="8dp"/>
+
+            <ImageButton
+                android:id="@+id/actionbar_view_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_outline_remove_red_eye"
+                android:background="@android:color/transparent"
+                android:padding="4dp"/>
+        </LinearLayout>
+
     </androidx.cardview.widget.CardView>
 
     <com.google.android.material.tabs.TabLayout

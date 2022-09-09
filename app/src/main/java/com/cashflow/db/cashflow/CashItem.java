@@ -4,8 +4,10 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+import com.cashflow.helper.Constants;
+
 @Entity(tableName = "CashFlow")
-public class CashItem {
+public class CashItem implements Comparable<CashItem> {
 
     @ColumnInfo(name = "id")
     @PrimaryKey(autoGenerate = true)
@@ -21,14 +23,33 @@ public class CashItem {
     private String type;
 
     @ColumnInfo(name = "time")
-    private String time;
+    private long time;
 
-    public CashItem(long id, String desc, double amount, String type, String time) {
+    private boolean isGrouped;
+
+    private long startDate;
+
+    private long endDate;
+
+    private int viewMode;
+
+    public CashItem() {
+    }
+
+    public CashItem(long id, String desc, double amount, String type, long time) {
         this.id = id;
         this.desc = desc;
         this.amount = amount;
         this.type = type;
         this.time = time;
+    }
+
+    public int getViewMode() {
+        return viewMode;
+    }
+
+    public void setViewMode(int viewMode) {
+        this.viewMode = viewMode;
     }
 
     public long getId() {
@@ -63,11 +84,41 @@ public class CashItem {
         this.type = type;
     }
 
-    public String getTime() {
+    public long getTime() {
         return time;
     }
 
-    public void setTime(String time) {
+    public void setTime(long time) {
         this.time = time;
+    }
+
+    public boolean isGrouped() {
+        return isGrouped;
+    }
+
+    public void setGrouped(boolean grouped) {
+        isGrouped = grouped;
+    }
+
+    public long getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(long startDate) {
+        this.startDate = startDate;
+    }
+
+    public long getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(long endDate) {
+        this.endDate = endDate;
+    }
+
+
+    @Override
+    public int compareTo(CashItem cashItem) {
+        return (this.getTime() - cashItem.getTime()) > 0 ? 1 : -1;
     }
 }
