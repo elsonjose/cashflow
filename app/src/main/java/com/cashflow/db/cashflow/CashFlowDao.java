@@ -37,4 +37,10 @@ public interface CashFlowDao {
     @Query("SELECT SUM(AMOUNT) FROM CASHFLOW WHERE TYPE==:t")
     public double getAmountSum(String t);
 
+    @Query("SELECT * FROM CASHFLOW WHERE time BETWEEN :start AND :end ORDER BY time DESC")
+    public List<CashItem> getAmountForDateRange(long start,long end);
+
+    @Query("SELECT SUM(AMOUNT) FROM CASHFLOW WHERE time BETWEEN :start AND :end AND TYPE==:t")
+    public double getSumAmountForDateRange(long start,long end, String t);
+
 }

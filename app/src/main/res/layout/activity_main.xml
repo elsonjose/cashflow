@@ -12,49 +12,52 @@
 
         <TextView
             android:id="@+id/actionbar_textView"
+            style="@style/MaterialAlertDialog.MaterialComponents.Title.Text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            style="@style/MaterialAlertDialog.MaterialComponents.Title.Text"
             android:layout_gravity="center_vertical"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
             android:textSize="20sp"
-            android:textStyle="bold"/>
+            android:textStyle="bold" />
 
         <LinearLayout
             android:id="@+id/actionbar_btn_wrapper"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
             android:layout_gravity="center_vertical|end"
             android:layout_marginEnd="16dp"
+            android:background="@android:color/transparent"
             android:orientation="horizontal">
 
             <ImageButton
                 android:id="@+id/actionbar_add_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_baseline_add_circle_outline"
+                android:layout_marginEnd="8dp"
                 android:background="@android:color/transparent"
                 android:padding="4dp"
-                android:layout_marginEnd="8dp"/>
+                android:src="@drawable/ic_baseline_add_circle_outline"
+                app:tint="@color/purple_500" />
 
             <ImageButton
                 android:id="@+id/actionbar_filter_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_outline_filter_alt"
+                android:layout_marginEnd="8dp"
                 android:background="@android:color/transparent"
                 android:padding="4dp"
-                android:layout_marginEnd="8dp"/>
+                android:src="@drawable/ic_outline_filter_alt"
+                app:tint="@color/purple_500" />
 
             <ImageButton
                 android:id="@+id/actionbar_view_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_outline_remove_red_eye"
                 android:background="@android:color/transparent"
-                android:padding="4dp"/>
+                android:padding="4dp"
+                android:src="@drawable/ic_outline_remove_red_eye"
+                app:tint="@color/purple_500" />
         </LinearLayout>
 
     </androidx.cardview.widget.CardView>
@@ -63,13 +66,13 @@
         android:id="@+id/tab_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/actionbar"/>
+        android:layout_below="@id/actionbar" />
 
     <androidx.viewpager.widget.ViewPager
         android:id="@+id/main_view_pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/tab_layout"/>
+        android:layout_below="@id/tab_layout" />
 
 
 </RelativeLayout>

@@ -70,6 +70,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:text="Create"
+        android:textColor="@color/white"
         android:onClick="createCashItem"/>
 
 

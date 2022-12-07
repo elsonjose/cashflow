@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.cashflow.R;
@@ -21,13 +22,14 @@ public class ReminderFragment extends Fragment {
     RecyclerView recyclerView;
     FloatingActionButton fab;
     View view;
+    LinearLayout bottomHeaderWrapper;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
 
-        view=  inflater.inflate(R.layout.fragment_statement, container, false);
+        view=  inflater.inflate(R.layout.fragment_tab_item, container, false);
 
         recyclerView = view.findViewById(R.id.recyclerview);
         recyclerView.setHasFixedSize(true);
@@ -36,6 +38,8 @@ public class ReminderFragment extends Fragment {
         linearLayoutManager.setStackFromEnd(true);
         recyclerView.setLayoutManager(linearLayoutManager);
 
+        bottomHeaderWrapper = view.findViewById(R.id.title_textView_wrapper);
+        bottomHeaderWrapper.setVisibility(View.GONE);
 
         return view;
     }
