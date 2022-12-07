@@ -4,6 +4,7 @@ import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
+import androidx.room.Update;
 
 import java.util.List;
 
@@ -21,6 +22,12 @@ public interface CashFlowDao {
 
     @Query("SELECT * FROM CASHFLOW WHERE TYPE==:t")
     public List<CashItem> getAllItems(String t);
+
+    @Query("SELECT * FROM CASHFLOW WHERE id==:id")
+    public CashItem getItem(long id);
+
+    @Update
+    public void UpdateItem(CashItem item);
 
     @Query("SELECT * FROM CASHFLOW")
     public List<CashItem> getAllItems();

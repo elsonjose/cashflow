@@ -1,7 +1,7 @@
 package com.cashflow.helper;
 
-import static com.cashflow.helper.Constants.STATEMENT_TYPE_EXPENSE;
-import static com.cashflow.helper.Constants.STATEMENT_TYPE_INCOME;
+import static com.cashflow.helper.Constants.STATEMENT_TYPE_DEBIT;
+import static com.cashflow.helper.Constants.STATEMENT_TYPE_CREDIT;
 import static com.cashflow.helper.Constants.STATEMENT_TYPE_UNKNOWN;
 import static com.cashflow.helper.Constants.STATEMENT_VIEW_MODE_DEFAULT;
 import static com.cashflow.helper.Constants.STATEMENT_VIEW_MODE_INDIVIDUAL;
@@ -172,16 +172,16 @@ public class CashFlowViewTypeHelper {
 
             transactionCounter.put(yearNumberKey, transactionCounter.get(yearNumberKey) + 1);
             CashItem yearlyItem = allYearlyData.get(yearNumberKey);
-            if (item.getType().equals(STATEMENT_TYPE_INCOME)) {
+            if (item.getType().equals(STATEMENT_TYPE_CREDIT)) {
                 yearlyItem.setAmount(yearlyItem.getAmount() + item.getAmount());
-            } else if (item.getType().equals(STATEMENT_TYPE_EXPENSE)) {
+            } else if (item.getType().equals(STATEMENT_TYPE_DEBIT)) {
                 yearlyItem.setAmount(yearlyItem.getAmount() - item.getAmount());
             }
 
             if (yearlyItem.getAmount() > -1) {
-                yearlyItem.setType(STATEMENT_TYPE_INCOME);
+                yearlyItem.setType(STATEMENT_TYPE_CREDIT);
             } else {
-                yearlyItem.setType(STATEMENT_TYPE_EXPENSE);
+                yearlyItem.setType(STATEMENT_TYPE_DEBIT);
             }
 
             yearlyItem.setAmount(Math.abs(yearlyItem.getAmount()));
@@ -258,16 +258,16 @@ public class CashFlowViewTypeHelper {
 
             transactionCounter.put(yearMonthNumberKey, transactionCounter.get(yearMonthNumberKey) + 1);
             CashItem monthlyItem = allMonthlyData.get(yearMonthNumberKey);
-            if (item.getType().equals(STATEMENT_TYPE_INCOME)) {
+            if (item.getType().equals(STATEMENT_TYPE_CREDIT)) {
                 monthlyItem.setAmount(monthlyItem.getAmount() + item.getAmount());
-            } else if (item.getType().equals(STATEMENT_TYPE_EXPENSE)) {
+            } else if (item.getType().equals(STATEMENT_TYPE_DEBIT)) {
                 monthlyItem.setAmount(monthlyItem.getAmount() - item.getAmount());
             }
 
             if (monthlyItem.getAmount() > -1) {
-                monthlyItem.setType(STATEMENT_TYPE_INCOME);
+                monthlyItem.setType(STATEMENT_TYPE_CREDIT);
             } else {
-                monthlyItem.setType(STATEMENT_TYPE_EXPENSE);
+                monthlyItem.setType(STATEMENT_TYPE_DEBIT);
             }
             monthlyItem.setAmount(Math.abs(monthlyItem.getAmount()));
 
@@ -333,18 +333,18 @@ public class CashFlowViewTypeHelper {
 
             transactionCounter.put(yearWeekNumberKey, transactionCounter.get(yearWeekNumberKey) + 1);
             CashItem weeklyItem = allWeeklyData.get(yearWeekNumberKey);
-            if (item.getType().equals(STATEMENT_TYPE_INCOME)) {
-                weeklyItem.setType(STATEMENT_TYPE_INCOME);
+            if (item.getType().equals(STATEMENT_TYPE_CREDIT)) {
+                weeklyItem.setType(STATEMENT_TYPE_CREDIT);
                 weeklyItem.setAmount(weeklyItem.getAmount() + item.getAmount());
-            } else if (item.getType().equals(STATEMENT_TYPE_EXPENSE)) {
-                weeklyItem.setType(STATEMENT_TYPE_EXPENSE);
+            } else if (item.getType().equals(STATEMENT_TYPE_DEBIT)) {
+                weeklyItem.setType(STATEMENT_TYPE_DEBIT);
                 weeklyItem.setAmount(weeklyItem.getAmount() - item.getAmount());
             }
 
             if (weeklyItem.getAmount() > -1) {
-                weeklyItem.setType(STATEMENT_TYPE_INCOME);
+                weeklyItem.setType(STATEMENT_TYPE_CREDIT);
             } else {
-                weeklyItem.setType(STATEMENT_TYPE_EXPENSE);
+                weeklyItem.setType(STATEMENT_TYPE_DEBIT);
             }
             weeklyItem.setAmount(Math.abs(weeklyItem.getAmount()));
 

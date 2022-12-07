@@ -1,12 +1,14 @@
 package com.cashflow.adapter;
 
-import static com.cashflow.helper.Constants.STATEMENT_TYPE_EXPENSE;
-import static com.cashflow.helper.Constants.STATEMENT_TYPE_INCOME;
+import static com.cashflow.helper.Constants.STATEMENT_TYPE_DEBIT;
+import static com.cashflow.helper.Constants.STATEMENT_TYPE_CREDIT;
 import static com.cashflow.helper.Constants.STATEMENT_VIEW_MODE_MONTHLY;
 import static com.cashflow.helper.Constants.STATEMENT_VIEW_MODE_WEEKLY;
 import static com.cashflow.helper.Constants.STATEMENT_VIEW_MODE_YEARLY;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +18,7 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.cashflow.R;
+import com.cashflow.activity.CashFlowActivity;
 import com.cashflow.db.cashflow.CashItem;
 import com.cashflow.fragments.StatementFragment;
 import com.cashflow.interfaces.onDeleted;
@@ -45,10 +48,10 @@ public class CashFlowAdapter extends RecyclerView.Adapter<CashFlowAdapter.CashFl
     @Override
     public void onBindViewHolder(CashFlowAdapter.CashFlowViewHolder holder, int position) {
 
-        if (cashItemList.get(position).getType().equals(STATEMENT_TYPE_INCOME)) {
+        if (cashItemList.get(position).getType().equals(STATEMENT_TYPE_CREDIT)) {
             holder.amountTextView.setText("+ ₹" + cashItemList.get(position).getAmount());
             holder.amountTextView.setTextColor(Color.parseColor("#3fb950"));
-        } else if (cashItemList.get(position).getType().equals(STATEMENT_TYPE_EXPENSE)) {
+        } else if (cashItemList.get(position).getType().equals(STATEMENT_TYPE_DEBIT)) {
 
             holder.amountTextView.setText("- ₹" + cashItemList.get(position).getAmount());
             holder.amountTextView.setTextColor(Color.parseColor("#da3633"));
@@ -57,19 +60,26 @@ public class CashFlowAdapter extends RecyclerView.Adapter<CashFlowAdapter.CashFl
         holder.timeTextView.setText(getTimeData(cashItemList.get(position)));
         holder.viewTypeTextView.setText(getViewModeText(cashItemList.get(position).getViewMode()));
 
-//        holder.delBtn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//
-//                CashFlowDatabase database = Room.databaseBuilder(context,CashFlowDatabase.class,"CashFlow").allowMainThreadQueries().build();
-//                database.getCashFlowDao().deleteItem(cashItemList.get(position));
-//                cashItemList.remove(position);
-//                notifyDataSetChanged();
-//                deleted.onDeleted();
-//
-//            }
-//        });
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
+                context.startActivity(new Intent(context, CashFlowActivity.class).putExtra("id", cashItemList.get(position).getId()));
+                ((Activity)context).overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                ((Activity)context).finish();
+            }
+        });
+
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return position;
     }
 
     private String getViewModeText(int viewMode) {

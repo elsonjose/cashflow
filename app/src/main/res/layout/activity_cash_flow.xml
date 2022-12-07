@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activity.CashFlowActivity"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:context=".activity.CashFlowActivity">
 
     <androidx.cardview.widget.CardView
         android:id="@+id/actionbar"
@@ -14,14 +14,14 @@
 
         <TextView
             android:id="@+id/actionbar_textView"
+            style="@style/MaterialAlertDialog.MaterialComponents.Title.Text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            style="@style/MaterialAlertDialog.MaterialComponents.Title.Text"
             android:layout_gravity="center_vertical"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
             android:textSize="20sp"
-            android:textStyle="bold"/>
+            android:textStyle="bold" />
 
     </androidx.cardview.widget.CardView>
 
@@ -29,20 +29,19 @@
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="12dp"
         android:hint="Amount"
         app:errorEnabled="true"
-        app:helperText="Required*"
-        android:layout_marginStart="12dp"
-        android:layout_marginEnd="12dp"
-        android:layout_marginTop="12dp"
-        >
+        app:helperText="Required*">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/amount"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textCursorDrawable="@null"
-            android:inputType="numberDecimal" />
+            android:inputType="numberDecimal"
+            android:textCursorDrawable="@null" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -50,28 +49,41 @@
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="12dp"
         android:hint="Description"
         app:errorEnabled="true"
-        app:helperText="Required*"
-        android:layout_margin="12dp">
+        app:helperText="Required*">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/desc"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textCursorDrawable="@null"
-            android:inputType="textMultiLine" />
+            android:inputType="textMultiLine"
+            android:textCursorDrawable="@null" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
 
     <Button
+        android:id="@+id/create_or_update_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
+        android:onClick="createCashItem"
         android:text="Create"
+        android:textColor="@color/white" />
+
+    <Button
+        android:id="@+id/delete_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:onClick="createCashItem"
+        android:text="Delete"
+        android:backgroundTint="@color/delete_red"
         android:textColor="@color/white"
-        android:onClick="createCashItem"/>
+        android:visibility="gone"/>
 
 
 </LinearLayout>

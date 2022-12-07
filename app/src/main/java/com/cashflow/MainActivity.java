@@ -1,5 +1,7 @@
 package com.cashflow;
 
+import static com.cashflow.helper.Constants.STATEMENT_TYPE_CREDIT;
+import static com.cashflow.helper.Constants.STATEMENT_TYPE_DEBIT;
 import static com.cashflow.helper.Constants.STATEMENT_VIEW_MODE_DEFAULT;
 import static com.cashflow.helper.Constants.STATEMENT_VIEW_MODE_INDIVIDUAL;
 import static com.cashflow.helper.Constants.STATEMENT_VIEW_MODE_MONTHLY;
@@ -69,8 +71,8 @@ public class MainActivity extends AppCompatActivity implements onChanged {
 
         CashFlowDatabase database = Room.databaseBuilder(getApplicationContext(), CashFlowDatabase.class, "CashFlow")
                 .fallbackToDestructiveMigration().allowMainThreadQueries().build();
-        double income = database.getCashFlowDao().getAmountSum("income");
-        double expense = database.getCashFlowDao().getAmountSum("expense");
+        double income = database.getCashFlowDao().getAmountSum(STATEMENT_TYPE_CREDIT);
+        double expense = database.getCashFlowDao().getAmountSum(STATEMENT_TYPE_DEBIT);
         double diff = income - expense;
         if (diff > 0) {
             headerTextView.setText("Balance: ₹ " + Math.abs(diff));
@@ -117,13 +119,13 @@ public class MainActivity extends AppCompatActivity implements onChanged {
                         // Toast message on menu item clicked
                         switch (menuItem.getItemId()) {
                             case R.id.income: {
-                                startActivity(new Intent(MainActivity.this, CashFlowActivity.class).putExtra("type", "credit"));
+                                startActivity(new Intent(MainActivity.this, CashFlowActivity.class).putExtra("type", STATEMENT_TYPE_CREDIT));
                                 overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
                                 finish();
                                 break;
                             }
                             default: {
-                                startActivity(new Intent(MainActivity.this, CashFlowActivity.class).putExtra("type", "debit"));
+                                startActivity(new Intent(MainActivity.this, CashFlowActivity.class).putExtra("type", STATEMENT_TYPE_DEBIT));
                                 overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
                                 finish();
                             }
@@ -188,8 +190,8 @@ public class MainActivity extends AppCompatActivity implements onChanged {
     @Override
     public void onChanged() {
         CashFlowDatabase database = Room.databaseBuilder(getApplicationContext(), CashFlowDatabase.class, "CashFlow").allowMainThreadQueries().build();
-        double income = database.getCashFlowDao().getAmountSum("income");
-        double expense = database.getCashFlowDao().getAmountSum("expense");
+        double income = database.getCashFlowDao().getAmountSum(STATEMENT_TYPE_CREDIT);
+        double expense = database.getCashFlowDao().getAmountSum(STATEMENT_TYPE_DEBIT);
         double diff = income - expense;
         if (diff >= 0) {
             headerTextView.setText("Balance: ₹ " + Math.abs(diff));

@@ -1,8 +1,8 @@
 package com.cashflow.helper;
 
 public class Constants {
-    public static final String STATEMENT_TYPE_INCOME = "income";
-    public static final String STATEMENT_TYPE_EXPENSE = "expense";
+    public static final String STATEMENT_TYPE_CREDIT = "credit";
+    public static final String STATEMENT_TYPE_DEBIT = "debit";
     public static final String STATEMENT_TYPE_UNKNOWN = "unknown";
     public static final String CURRENT_VIEW_MODE = "view-mode";
 

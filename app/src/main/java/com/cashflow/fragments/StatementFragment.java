@@ -1,7 +1,7 @@
 package com.cashflow.fragments;
 
-import static com.cashflow.helper.Constants.STATEMENT_TYPE_EXPENSE;
-import static com.cashflow.helper.Constants.STATEMENT_TYPE_INCOME;
+import static com.cashflow.helper.Constants.STATEMENT_TYPE_DEBIT;
+import static com.cashflow.helper.Constants.STATEMENT_TYPE_CREDIT;
 import static com.cashflow.helper.Constants.STATEMENT_TYPE_UNKNOWN;
 import static com.cashflow.helper.Constants.STATEMENT_VIEW_MODE_DEFAULT;
 
@@ -96,8 +96,8 @@ public class StatementFragment extends Fragment implements onDeleted {
             contentWrapper.setVisibility(View.GONE);
         }
 
-        expenseTextView.setText("Debit: -₹ " + database.getCashFlowDao().getSumAmountForDateRange(start,end,STATEMENT_TYPE_EXPENSE));
-        incomeTextView.setText("Credit: ₹ " + database.getCashFlowDao().getSumAmountForDateRange(start,end,STATEMENT_TYPE_INCOME));
+        expenseTextView.setText("Debit: -₹ " + database.getCashFlowDao().getSumAmountForDateRange(start,end, STATEMENT_TYPE_DEBIT));
+        incomeTextView.setText("Credit: ₹ " + database.getCashFlowDao().getSumAmountForDateRange(start,end, STATEMENT_TYPE_CREDIT));
         populateData(statementList);
     }
 
@@ -132,8 +132,8 @@ public class StatementFragment extends Fragment implements onDeleted {
                 emptyStatementTextView.setVisibility(View.VISIBLE);
                 contentWrapper.setVisibility(View.GONE);
             }
-            expenseTextView.setText("Debit: -₹ " + database.getCashFlowDao().getAmountSum(STATEMENT_TYPE_EXPENSE));
-            incomeTextView.setText("Credit: ₹ " + database.getCashFlowDao().getAmountSum(STATEMENT_TYPE_INCOME));
+            expenseTextView.setText("Debit: -₹ " + database.getCashFlowDao().getAmountSum(STATEMENT_TYPE_DEBIT));
+            incomeTextView.setText("Credit: ₹ " + database.getCashFlowDao().getAmountSum(STATEMENT_TYPE_CREDIT));
             populateData(statementList);
 
         }
@@ -153,8 +153,8 @@ public class StatementFragment extends Fragment implements onDeleted {
     @Override
     public void onDeleted() {
         CashFlowDatabase database = Room.databaseBuilder(getContext(), CashFlowDatabase.class, "CashFlow").allowMainThreadQueries().build();
-        expenseTextView.setText("Total: -₹ " + database.getCashFlowDao().getAmountSum("expense"));
-        incomeTextView.setText("Total: ₹ " + database.getCashFlowDao().getAmountSum("income"));
+        expenseTextView.setText("Total: -₹ " + database.getCashFlowDao().getAmountSum(STATEMENT_TYPE_DEBIT));
+        incomeTextView.setText("Total: ₹ " + database.getCashFlowDao().getAmountSum(STATEMENT_TYPE_CREDIT));
         onChanged changed = (onChanged) getActivity();
         changed.onChanged();
     }
