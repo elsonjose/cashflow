@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity implements onChanged {
 
     private static final String TAG = "MainActivityTAG";
     ViewPager mainViewPager;
-    TextView headerTextView;
+    TextView headerTextView,balanceTextView;
     TabLayout tabLayout;
     CardView actionbar;
     ImageButton filterBtn, addBtn, viewModeBtn;
@@ -65,6 +65,7 @@ public class MainActivity extends AppCompatActivity implements onChanged {
         actionbar = findViewById(R.id.actionbar);
         tabLayout = findViewById(R.id.tab_layout);
         headerTextView = findViewById(R.id.actionbar_textView);
+        balanceTextView = findViewById(R.id.actionbar_balance_textView);
         mainViewPager = findViewById(R.id.main_view_pager);
         mainViewPager.setAdapter(new MainFragmentAdapter(getSupportFragmentManager(), 0));
         tabLayout.setupWithViewPager(mainViewPager);
@@ -75,13 +76,15 @@ public class MainActivity extends AppCompatActivity implements onChanged {
         double expense = database.getCashFlowDao().getAmountSum(STATEMENT_TYPE_DEBIT);
         double diff = income - expense;
         if (diff > 0) {
-            headerTextView.setText("Balance: ₹ " + Math.abs(diff));
+            headerTextView.setText("₹ " + Math.abs(diff));
             headerTextView.setTextColor(Color.parseColor("#3fb950"));
+            balanceTextView.setTextColor(Color.parseColor("#3fb950"));
         } else if (diff < 0) {
-            headerTextView.setText("Balance: - ₹ " + Math.abs(diff));
+            headerTextView.setText("- ₹ " + Math.abs(diff));
             headerTextView.setTextColor(Color.parseColor("#da3633"));
+            balanceTextView.setTextColor(Color.parseColor("#da3633"));
         } else {
-            headerTextView.setText("Balance: ₹ " + Math.abs(diff));
+            headerTextView.setText("₹ " + Math.abs(diff));
         }
 
         mainViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -212,6 +215,7 @@ public class MainActivity extends AppCompatActivity implements onChanged {
             mainViewPager.setCurrentItem(0);
         }
         else if (statementFragment.isDateRangePicked) {
+            statementFragment.dateRangeView.setVisibility(View.GONE);
             statementFragment.isDateRangePicked = false;
             filterStart = 0;
             filterEnd = 0;

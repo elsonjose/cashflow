@@ -7,6 +7,7 @@ import static com.cashflow.helper.Constants.STATEMENT_VIEW_MODE_DEFAULT;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +25,7 @@ import com.cashflow.db.cashflow.CashFlowDatabase;
 import com.cashflow.db.cashflow.CashItem;
 import com.cashflow.helper.CashFlowViewTypeHelper;
 import com.cashflow.helper.Constants;
+import com.cashflow.helper.DateTimeHelper;
 import com.cashflow.helper.PrefHelper;
 import com.cashflow.interfaces.onChanged;
 import com.cashflow.interfaces.onDeleted;
@@ -37,13 +39,14 @@ public class StatementFragment extends Fragment implements onDeleted {
 
     private static final String TAG = "StatementFragment";
 
-    TextView incomeTextView, expenseTextView;
+    TextView incomeTextView, expenseTextView, expenseTitleTextView,incomeTitleTextView;
     RecyclerView recyclerView;
     CashFlowAdapter adapter;
     List<CashItem> realStatementList = new ArrayList<>();
     public boolean isDateRangePicked = false;
     View view;
     TextView emptyStatementTextView;
+    public TextView dateRangeView;
     RelativeLayout contentWrapper;
 
     @Override
@@ -51,11 +54,17 @@ public class StatementFragment extends Fragment implements onDeleted {
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_tab_item, container, false);
 
+        dateRangeView = view.findViewById(R.id.date_range_text_view);
+
         expenseTextView = view.findViewById(R.id.title_expense_textView);
+        expenseTitleTextView = view.findViewById(R.id.title_expense_title_textView);
         expenseTextView.setTextColor(Color.parseColor("#da3633"));
+        expenseTitleTextView.setTextColor(Color.parseColor("#da3633"));
 
         incomeTextView = view.findViewById(R.id.title_income_textView);
+        incomeTitleTextView = view.findViewById(R.id.title_income_title_textView);
         incomeTextView.setTextColor(Color.parseColor("#3fb950"));
+        incomeTitleTextView.setTextColor(Color.parseColor("#3fb950"));
 
         recyclerView = view.findViewById(R.id.recyclerview);
         recyclerView.setHasFixedSize(true);
@@ -75,15 +84,23 @@ public class StatementFragment extends Fragment implements onDeleted {
     }
 
     public void loadStatementForDateRange(long start, long end){
+        dateRangeView.setText("Range selected: "+ DateTimeHelper.getDate(start)+" to "+DateTimeHelper.getDate(end));
+        dateRangeView.setVisibility(View.VISIBLE);
         isDateRangePicked = true;
         realStatementList.clear();
+        recyclerView.removeAllViews();
+        // add end of day millis to end datetime
+        end+= (24*60*60*1000)-1000;
+
+        // add end of day millis to end datetime
+        end+= (24*60*60*1000)-1;
 
         CashFlowDatabase database = Room.databaseBuilder(getContext(), CashFlowDatabase.class, "CashFlow").fallbackToDestructiveMigration()
                 .allowMainThreadQueries().build();
 
         List<CashItem> statementList = database.getCashFlowDao().getAmountForDateRange(start,end);
 
-        long totalCount = database.getCashFlowDao().getTotalCount();
+        long totalCount = statementList.size();
         if (totalCount > 0) {
             emptyStatementTextView.setVisibility(View.GONE);
             contentWrapper.setVisibility(View.VISIBLE);
@@ -96,8 +113,8 @@ public class StatementFragment extends Fragment implements onDeleted {
             contentWrapper.setVisibility(View.GONE);
         }
 
-        expenseTextView.setText("Debit: -₹ " + database.getCashFlowDao().getSumAmountForDateRange(start,end, STATEMENT_TYPE_DEBIT));
-        incomeTextView.setText("Credit: ₹ " + database.getCashFlowDao().getSumAmountForDateRange(start,end, STATEMENT_TYPE_CREDIT));
+        expenseTextView.setText("-₹ " + database.getCashFlowDao().getSumAmountForDateRange(start,end, STATEMENT_TYPE_DEBIT));
+        incomeTextView.setText("₹ " + database.getCashFlowDao().getSumAmountForDateRange(start,end, STATEMENT_TYPE_CREDIT));
         populateData(statementList);
     }
 
@@ -110,6 +127,7 @@ public class StatementFragment extends Fragment implements onDeleted {
         else
         {
             realStatementList.clear();
+            recyclerView.removeAllViews();
 
             CashFlowDatabase database = Room.databaseBuilder(getContext(), CashFlowDatabase.class, "CashFlow").fallbackToDestructiveMigration()
                     .allowMainThreadQueries().build();
@@ -132,8 +150,8 @@ public class StatementFragment extends Fragment implements onDeleted {
                 emptyStatementTextView.setVisibility(View.VISIBLE);
                 contentWrapper.setVisibility(View.GONE);
             }
-            expenseTextView.setText("Debit: -₹ " + database.getCashFlowDao().getAmountSum(STATEMENT_TYPE_DEBIT));
-            incomeTextView.setText("Credit: ₹ " + database.getCashFlowDao().getAmountSum(STATEMENT_TYPE_CREDIT));
+            expenseTextView.setText("-₹ " + database.getCashFlowDao().getAmountSum(STATEMENT_TYPE_DEBIT));
+            incomeTextView.setText("₹ " + database.getCashFlowDao().getAmountSum(STATEMENT_TYPE_CREDIT));
             populateData(statementList);
 
         }
@@ -153,8 +171,8 @@ public class StatementFragment extends Fragment implements onDeleted {
     @Override
     public void onDeleted() {
         CashFlowDatabase database = Room.databaseBuilder(getContext(), CashFlowDatabase.class, "CashFlow").allowMainThreadQueries().build();
-        expenseTextView.setText("Total: -₹ " + database.getCashFlowDao().getAmountSum(STATEMENT_TYPE_DEBIT));
-        incomeTextView.setText("Total: ₹ " + database.getCashFlowDao().getAmountSum(STATEMENT_TYPE_CREDIT));
+        expenseTextView.setText("-₹ " + database.getCashFlowDao().getAmountSum(STATEMENT_TYPE_DEBIT));
+        incomeTextView.setText("₹ " + database.getCashFlowDao().getAmountSum(STATEMENT_TYPE_CREDIT));
         onChanged changed = (onChanged) getActivity();
         changed.onChanged();
     }

@@ -2,6 +2,8 @@ package com.cashflow.adapter;
 
 import static com.cashflow.helper.Constants.STATEMENT_TYPE_DEBIT;
 import static com.cashflow.helper.Constants.STATEMENT_TYPE_CREDIT;
+import static com.cashflow.helper.Constants.STATEMENT_VIEW_MODE_DEFAULT;
+import static com.cashflow.helper.Constants.STATEMENT_VIEW_MODE_INDIVIDUAL;
 import static com.cashflow.helper.Constants.STATEMENT_VIEW_MODE_MONTHLY;
 import static com.cashflow.helper.Constants.STATEMENT_VIEW_MODE_WEEKLY;
 import static com.cashflow.helper.Constants.STATEMENT_VIEW_MODE_YEARLY;
@@ -14,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -21,6 +24,8 @@ import com.cashflow.R;
 import com.cashflow.activity.CashFlowActivity;
 import com.cashflow.db.cashflow.CashItem;
 import com.cashflow.fragments.StatementFragment;
+import com.cashflow.helper.Constants;
+import com.cashflow.helper.PrefHelper;
 import com.cashflow.interfaces.onDeleted;
 
 import java.text.SimpleDateFormat;
@@ -64,9 +69,16 @@ public class CashFlowAdapter extends RecyclerView.Adapter<CashFlowAdapter.CashFl
             @Override
             public void onClick(View v) {
 
-                context.startActivity(new Intent(context, CashFlowActivity.class).putExtra("id", cashItemList.get(position).getId()));
-                ((Activity)context).overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-                ((Activity)context).finish();
+                int viewMode = new PrefHelper(context).getIntPreference(Constants.CURRENT_VIEW_MODE, STATEMENT_VIEW_MODE_DEFAULT);
+                if(viewMode == STATEMENT_VIEW_MODE_INDIVIDUAL)
+                {
+                    context.startActivity(new Intent(context, CashFlowActivity.class).putExtra("id", cashItemList.get(position).getId()));
+                    ((Activity)context).overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                    ((Activity)context).finish();
+                }else
+                {
+                    Toast.makeText(context, "Edit allowed only for individual view", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
