@@ -11,7 +11,6 @@ import static com.cashflow.helper.Constants.STATEMENT_VIEW_MODE_YEARLY;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
@@ -29,7 +28,6 @@ import androidx.room.Room;
 import androidx.viewpager.widget.ViewPager;
 
 import com.cashflow.activity.CashFlowActivity;
-import com.cashflow.activity.ReminderActivity;
 import com.cashflow.db.cashflow.CashFlowDatabase;
 import com.cashflow.fragments.ReminderFragment;
 import com.cashflow.fragments.StatementFragment;
@@ -218,15 +216,6 @@ public class MainActivity extends AppCompatActivity implements onChanged {
         } else {
             statementFilterBtn.setVisibility(View.GONE);
         }
-
-        reminderAddBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(MainActivity.this, ReminderActivity.class));
-                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-                finish();
-            }
-        });
     }
 
     @Override
