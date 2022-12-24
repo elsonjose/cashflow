@@ -11,6 +11,7 @@ import static com.cashflow.helper.Constants.STATEMENT_VIEW_MODE_YEARLY;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
@@ -28,6 +29,7 @@ import androidx.room.Room;
 import androidx.viewpager.widget.ViewPager;
 
 import com.cashflow.activity.CashFlowActivity;
+import com.cashflow.activity.ReminderActivity;
 import com.cashflow.db.cashflow.CashFlowDatabase;
 import com.cashflow.fragments.ReminderFragment;
 import com.cashflow.fragments.StatementFragment;
@@ -41,11 +43,12 @@ public class MainActivity extends AppCompatActivity implements onChanged {
 
     private static final String TAG = "MainActivityTAG";
     ViewPager mainViewPager;
-    TextView headerTextView,balanceTextView;
+    TextView headerTextView, balanceTextView;
     TabLayout tabLayout;
     CardView actionbar;
-    ImageButton filterBtn, addBtn, viewModeBtn;
-    LinearLayout btnWrapper;
+    ImageButton statementFilterBtn, statementAddBtn, statementViewModeBtn;
+    ImageButton  reminderAddBtn;
+    LinearLayout statementBtnWrapper, reminderBtnWrapper;
     ReminderFragment reminderFragment;
     StatementFragment statementFragment;
     long filterStart = 0, filterEnd = 0;
@@ -58,10 +61,14 @@ public class MainActivity extends AppCompatActivity implements onChanged {
         reminderFragment = new ReminderFragment();
         statementFragment = new StatementFragment();
 
-        btnWrapper = findViewById(R.id.actionbar_btn_wrapper);
-        filterBtn = findViewById(R.id.actionbar_filter_btn);
-        addBtn = findViewById(R.id.actionbar_add_btn);
-        viewModeBtn = findViewById(R.id.actionbar_view_btn);
+        statementBtnWrapper = findViewById(R.id.actionbar_statement_btn_wrapper);
+        reminderBtnWrapper = findViewById(R.id.actionbar_reminder_btn_wrapper);
+        statementFilterBtn = findViewById(R.id.statement_filter_btn);
+        statementAddBtn = findViewById(R.id.statement_add_btn);
+        statementViewModeBtn = findViewById(R.id.statement_view_btn);
+
+        reminderAddBtn = findViewById(R.id.reminder_add_btn);
+
         actionbar = findViewById(R.id.actionbar);
         tabLayout = findViewById(R.id.tab_layout);
         headerTextView = findViewById(R.id.actionbar_textView);
@@ -69,6 +76,7 @@ public class MainActivity extends AppCompatActivity implements onChanged {
         mainViewPager = findViewById(R.id.main_view_pager);
         mainViewPager.setAdapter(new MainFragmentAdapter(getSupportFragmentManager(), 0));
         tabLayout.setupWithViewPager(mainViewPager);
+        tabLayout.setVisibility(View.GONE);
 
         CashFlowDatabase database = Room.databaseBuilder(getApplicationContext(), CashFlowDatabase.class, "CashFlow")
                 .fallbackToDestructiveMigration().allowMainThreadQueries().build();
@@ -96,9 +104,11 @@ public class MainActivity extends AppCompatActivity implements onChanged {
             @Override
             public void onPageSelected(int position) {
                 if (position == 0) {
-                    btnWrapper.setVisibility(View.VISIBLE);
+                    statementBtnWrapper.setVisibility(View.VISIBLE);
+                    reminderBtnWrapper.setVisibility(View.GONE);
                 } else {
-                    btnWrapper.setVisibility(View.GONE);
+                    statementBtnWrapper.setVisibility(View.GONE);
+                    reminderBtnWrapper.setVisibility(View.VISIBLE);
                 }
             }
 
@@ -108,11 +118,11 @@ public class MainActivity extends AppCompatActivity implements onChanged {
             }
         });
 
-        addBtn.setOnClickListener(new View.OnClickListener() {
+        statementAddBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                PopupMenu popupMenu = new PopupMenu(MainActivity.this, filterBtn);
+                PopupMenu popupMenu = new PopupMenu(MainActivity.this, statementAddBtn);
 
                 // Inflating popup menu from popup_menu.xml file
                 popupMenu.getMenuInflater().inflate(R.menu.statement_menu, popupMenu.getMenu());
@@ -141,7 +151,8 @@ public class MainActivity extends AppCompatActivity implements onChanged {
             }
         });
 
-        filterBtn.setOnClickListener(v -> {
+        statementFilterBtn.setOnClickListener(v -> {
+
             MaterialDatePicker dateRangePicker = MaterialDatePicker.Builder.dateRangePicker().build();
             dateRangePicker.show(getSupportFragmentManager(), dateRangePicker.getTag());
             dateRangePicker.addOnPositiveButtonClickListener(selection -> {
@@ -154,10 +165,14 @@ public class MainActivity extends AppCompatActivity implements onChanged {
             });
         });
 
-        viewModeBtn.setOnClickListener(view -> {
+        statementViewModeBtn.setOnClickListener(view -> {
 
-            PopupMenu popupMenu = new PopupMenu(MainActivity.this, viewModeBtn);
+            PopupMenu popupMenu = new PopupMenu(MainActivity.this, statementViewModeBtn);
             popupMenu.getMenuInflater().inflate(R.menu.statement_view_mode, popupMenu.getMenu());
+            if(statementFragment.isDateRangePicked)
+            {
+                popupMenu.getMenu().getItem(0).setVisible(false);
+            }
             popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                 @Override
                 public boolean onMenuItemClick(MenuItem menuItem) {
@@ -182,11 +197,35 @@ public class MainActivity extends AppCompatActivity implements onChanged {
                             new PrefHelper(MainActivity.this).setPreference(Constants.CURRENT_VIEW_MODE, STATEMENT_VIEW_MODE_DEFAULT);
                         }
                     }
+
+                    int viewMode = new PrefHelper(MainActivity.this).getIntPreference(Constants.CURRENT_VIEW_MODE, STATEMENT_VIEW_MODE_DEFAULT);
+                    if (viewMode != STATEMENT_VIEW_MODE_DEFAULT) {
+                        statementFilterBtn.setVisibility(View.VISIBLE);
+                    } else {
+                        statementFilterBtn.setVisibility(View.GONE);
+                    }
+
                     statementFragment.loadStatement(filterStart, filterEnd);
                     return true;
                 }
             });
             popupMenu.show();
+        });
+
+        int viewMode = new PrefHelper(MainActivity.this).getIntPreference(Constants.CURRENT_VIEW_MODE, STATEMENT_VIEW_MODE_DEFAULT);
+        if (viewMode != STATEMENT_VIEW_MODE_DEFAULT) {
+            statementFilterBtn.setVisibility(View.VISIBLE);
+        } else {
+            statementFilterBtn.setVisibility(View.GONE);
+        }
+
+        reminderAddBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(MainActivity.this, ReminderActivity.class));
+                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                finish();
+            }
         });
     }
 
@@ -210,11 +249,9 @@ public class MainActivity extends AppCompatActivity implements onChanged {
 
     @Override
     public void onBackPressed() {
-        if(mainViewPager.getCurrentItem() != 0)
-        {
+        if (mainViewPager.getCurrentItem() != 0) {
             mainViewPager.setCurrentItem(0);
-        }
-        else if (statementFragment.isDateRangePicked) {
+        } else if (statementFragment.isDateRangePicked) {
             statementFragment.dateRangeView.setVisibility(View.GONE);
             statementFragment.isDateRangePicked = false;
             filterStart = 0;
@@ -252,7 +289,7 @@ public class MainActivity extends AppCompatActivity implements onChanged {
 
         @Override
         public int getCount() {
-            return 2;
+            return 1;
         }
     }
 }

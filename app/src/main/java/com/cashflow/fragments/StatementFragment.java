@@ -139,6 +139,8 @@ public class StatementFragment extends Fragment implements onDeleted {
             if (totalCount > 0) {
                 long startTime = database.getCashFlowDao().getStartTimestamp();
                 long endTime = database.getCashFlowDao().getEndTimestamp();
+                Log.i(TAG, "loadStatement: "+startTime);
+                Log.i(TAG, "loadStatement: "+endTime);
                 int viewMode = new PrefHelper(getContext()).getIntPreference(Constants.CURRENT_VIEW_MODE, STATEMENT_VIEW_MODE_DEFAULT);
                 statementList = new CashFlowViewTypeHelper(viewMode).GetCashFlowList(statementList, startTime, endTime);
 

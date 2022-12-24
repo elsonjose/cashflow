@@ -18,7 +18,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class ReminderFragment extends Fragment {
 
-    TextView header;
+    TextView header, emptyTextView;
     RecyclerView recyclerView;
     FloatingActionButton fab;
     View view;
@@ -38,8 +38,13 @@ public class ReminderFragment extends Fragment {
         linearLayoutManager.setStackFromEnd(true);
         recyclerView.setLayoutManager(linearLayoutManager);
 
+        emptyTextView = view.findViewById(R.id.empty_statement_text_view);
+
         bottomHeaderWrapper = view.findViewById(R.id.title_textView_wrapper);
         bottomHeaderWrapper.setVisibility(View.GONE);
+
+        emptyTextView.setText("Working on it");
+        emptyTextView.setVisibility(View.VISIBLE);
 
         return view;
     }

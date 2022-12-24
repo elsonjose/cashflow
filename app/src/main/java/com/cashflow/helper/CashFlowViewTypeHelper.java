@@ -1,7 +1,7 @@
 package com.cashflow.helper;
 
-import static com.cashflow.helper.Constants.STATEMENT_TYPE_DEBIT;
 import static com.cashflow.helper.Constants.STATEMENT_TYPE_CREDIT;
+import static com.cashflow.helper.Constants.STATEMENT_TYPE_DEBIT;
 import static com.cashflow.helper.Constants.STATEMENT_TYPE_UNKNOWN;
 import static com.cashflow.helper.Constants.STATEMENT_VIEW_MODE_DEFAULT;
 import static com.cashflow.helper.Constants.STATEMENT_VIEW_MODE_INDIVIDUAL;
@@ -55,7 +55,7 @@ public class CashFlowViewTypeHelper {
         Calendar calendar = Calendar.getInstance();
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH);
-        month+=1;
+        month += 1;
         int week = calendar.get(Calendar.WEEK_OF_YEAR);
 
         Date date = new Date(timeStamp);
@@ -89,11 +89,9 @@ public class CashFlowViewTypeHelper {
 
         for (CashItem item : cashItemList) {
             int span = getSpanType(item.getTime());
-            Log.i(TAG, "getDefaultCashFlow: span "+span);
             Date date = new Date(item.getTime());
             SimpleDateFormat yearlyFormat = new SimpleDateFormat("dd-MM-yyyy");
             String yearNumberKey = yearlyFormat.format(date);
-            Log.i(TAG, "getDefaultCashFlow: time "+yearNumberKey);
             if (span == STATEMENT_VIEW_MODE_INDIVIDUAL) {
                 currentWeeklyItems.add(item);
             } else if (span == STATEMENT_VIEW_MODE_WEEKLY) {
@@ -109,23 +107,20 @@ public class CashFlowViewTypeHelper {
         }
 
         defaultCashFlowList.addAll(currentWeeklyItems);
-        if(currentMonthlyItems.size() > 0)
-        {
-            long weeklyEndDate = currentMonthlyItems.get(currentMonthlyItems.size()-1).getTime();
+        if (currentMonthlyItems.size() > 0) {
+            long weeklyEndDate = currentMonthlyItems.get(currentMonthlyItems.size() - 1).getTime();
             long weeklyStartDate = currentMonthlyItems.get(0).getTime();
-            defaultCashFlowList.addAll(getWeeklyCashFlow(currentMonthlyItems,weeklyStartDate,weeklyEndDate));
+            defaultCashFlowList.addAll(getWeeklyCashFlow(currentMonthlyItems, weeklyStartDate, weeklyEndDate));
         }
-        if(currentYearlyItems.size() > 0)
-        {
-            long currentYearEndDate = currentYearlyItems.get(currentYearlyItems.size()-1).getTime();
+        if (currentYearlyItems.size() > 0) {
+            long currentYearEndDate = currentYearlyItems.get(currentYearlyItems.size() - 1).getTime();
             long currentYearStartDate = currentYearlyItems.get(0).getTime();
-            defaultCashFlowList.addAll(getMonthlyCashFlow(currentYearlyItems,currentYearStartDate,currentYearEndDate));
+            defaultCashFlowList.addAll(getMonthlyCashFlow(currentYearlyItems, currentYearStartDate, currentYearEndDate));
         }
-        if(yearlyItems.size() > 0)
-        {
-            long yearEndDate = yearlyItems.get(yearlyItems.size()-1).getTime();
+        if (yearlyItems.size() > 0) {
+            long yearEndDate = yearlyItems.get(yearlyItems.size() - 1).getTime();
             long yearStartDate = yearlyItems.get(0).getTime();
-            defaultCashFlowList.addAll(getYearlyCashFlow(yearlyItems,yearStartDate,yearEndDate));
+            defaultCashFlowList.addAll(getYearlyCashFlow(yearlyItems, yearStartDate, yearEndDate));
         }
         return defaultCashFlowList;
     }
@@ -175,16 +170,16 @@ public class CashFlowViewTypeHelper {
             if (item.getType().equals(STATEMENT_TYPE_CREDIT)) {
                 yearlyItem.setAmount(yearlyItem.getAmount() + item.getAmount());
             } else if (item.getType().equals(STATEMENT_TYPE_DEBIT)) {
-                yearlyItem.setAmount(yearlyItem.getAmount() - item.getAmount());
+                item.setAmount(-1 * item.getAmount());
+                yearlyItem.setAmount(yearlyItem.getAmount() + item.getAmount());
             }
 
             if (yearlyItem.getAmount() > -1) {
                 yearlyItem.setType(STATEMENT_TYPE_CREDIT);
             } else {
                 yearlyItem.setType(STATEMENT_TYPE_DEBIT);
+                yearlyItem.setAmount(yearlyItem.getAmount());
             }
-
-            yearlyItem.setAmount(Math.abs(yearlyItem.getAmount()));
 
             if (transactionCounter.get(yearNumberKey) != 1) {
                 yearlyItem.setDesc(transactionCounter.get(yearNumberKey) + " transactions");
@@ -193,6 +188,11 @@ public class CashFlowViewTypeHelper {
                 yearlyItem.setDesc(transactionCounter.get(yearNumberKey) + " transaction");
             }
         }
+
+        for (Map.Entry<String, CashItem> entry : allYearlyData.entrySet()) {
+            entry.getValue().setAmount(Math.abs(entry.getValue().getAmount()));
+        }
+
         yearlyData.addAll(allYearlyData.values());
         return yearlyData;
 
@@ -261,16 +261,17 @@ public class CashFlowViewTypeHelper {
             if (item.getType().equals(STATEMENT_TYPE_CREDIT)) {
                 monthlyItem.setAmount(monthlyItem.getAmount() + item.getAmount());
             } else if (item.getType().equals(STATEMENT_TYPE_DEBIT)) {
-                monthlyItem.setAmount(monthlyItem.getAmount() - item.getAmount());
+
+                item.setAmount(-1 * item.getAmount());
+                monthlyItem.setAmount(monthlyItem.getAmount() + item.getAmount());
             }
 
             if (monthlyItem.getAmount() > -1) {
                 monthlyItem.setType(STATEMENT_TYPE_CREDIT);
             } else {
                 monthlyItem.setType(STATEMENT_TYPE_DEBIT);
+                monthlyItem.setAmount(monthlyItem.getAmount());
             }
-            monthlyItem.setAmount(Math.abs(monthlyItem.getAmount()));
-
             if (transactionCounter.get(yearMonthNumberKey) != 1) {
                 monthlyItem.setDesc(transactionCounter.get(yearMonthNumberKey) + " transactions");
 
@@ -278,6 +279,11 @@ public class CashFlowViewTypeHelper {
                 monthlyItem.setDesc(transactionCounter.get(yearMonthNumberKey) + " transaction");
             }
         }
+
+        for (Map.Entry<String, CashItem> entry : allMonthlyData.entrySet()) {
+            entry.getValue().setAmount(Math.abs(entry.getValue().getAmount()));
+        }
+
         monthlyData.addAll(allMonthlyData.values());
         return monthlyData;
 
@@ -297,15 +303,13 @@ public class CashFlowViewTypeHelper {
             String[] yearWeekNumber = sdf.format(date).split("-");
             String yearWeekNumberKey = sdf.format(date);
 
-
             Calendar calendar = Calendar.getInstance();
             calendar.clear();
             calendar.set(Calendar.YEAR, Integer.parseInt(yearWeekNumber[0]));
             calendar.set(Calendar.WEEK_OF_YEAR, Integer.parseInt(yearWeekNumber[1]));
-
+            calendar.setFirstDayOfWeek(Calendar.SUNDAY);
             calendar.set(Calendar.DAY_OF_WEEK, 1);
             Date weekStartDate = calendar.getTime();
-
             long weekEndDate = weekStartDate.getTime() + 6 * (24 * 60 * 60 * 1000);
 
             weekData.setStartDate(weekStartDate.getTime());
@@ -331,22 +335,27 @@ public class CashFlowViewTypeHelper {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-ww");
             String yearWeekNumberKey = sdf.format(date);
 
-            transactionCounter.put(yearWeekNumberKey, transactionCounter.get(yearWeekNumberKey) + 1);
+            int currentCount = 0;
+            if (transactionCounter.containsKey(yearWeekNumberKey)) {
+                currentCount = transactionCounter.get(yearWeekNumberKey);
+            }
+            transactionCounter.put(yearWeekNumberKey, currentCount + 1);
             CashItem weeklyItem = allWeeklyData.get(yearWeekNumberKey);
+
             if (item.getType().equals(STATEMENT_TYPE_CREDIT)) {
-                weeklyItem.setType(STATEMENT_TYPE_CREDIT);
                 weeklyItem.setAmount(weeklyItem.getAmount() + item.getAmount());
+
             } else if (item.getType().equals(STATEMENT_TYPE_DEBIT)) {
-                weeklyItem.setType(STATEMENT_TYPE_DEBIT);
-                weeklyItem.setAmount(weeklyItem.getAmount() - item.getAmount());
+                item.setAmount(-1 * item.getAmount());
+                weeklyItem.setAmount(weeklyItem.getAmount() + item.getAmount());
             }
 
             if (weeklyItem.getAmount() > -1) {
                 weeklyItem.setType(STATEMENT_TYPE_CREDIT);
             } else {
                 weeklyItem.setType(STATEMENT_TYPE_DEBIT);
+                weeklyItem.setAmount(weeklyItem.getAmount());
             }
-            weeklyItem.setAmount(Math.abs(weeklyItem.getAmount()));
 
             if (transactionCounter.get(yearWeekNumberKey) != 1) {
                 weeklyItem.setDesc(transactionCounter.get(yearWeekNumberKey) + " transactions");
@@ -355,6 +364,11 @@ public class CashFlowViewTypeHelper {
                 weeklyItem.setDesc(transactionCounter.get(yearWeekNumberKey) + " transaction");
             }
         }
+
+        for (Map.Entry<String, CashItem> entry : allWeeklyData.entrySet()) {
+            entry.getValue().setAmount(Math.abs(entry.getValue().getAmount()));
+        }
+
         weeklyData.addAll(allWeeklyData.values());
         return weeklyData;
 

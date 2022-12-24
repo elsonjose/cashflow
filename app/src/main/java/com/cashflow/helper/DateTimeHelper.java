@@ -11,4 +11,11 @@ public class DateTimeHelper {
         String formattedDate = sdf.format(date);
         return formattedDate;
     }
+
+    public static String getDateWithDay(long timestamp) {
+        Date date = new Date(timestamp);
+        SimpleDateFormat sdf = new SimpleDateFormat("EEE dd MMM yyyy");
+        String formattedDate = sdf.format(date);
+        return formattedDate;
+    }
 }

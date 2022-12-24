@@ -14,12 +14,15 @@ public class ReminderItem {
     @PrimaryKey(autoGenerate = true)
     private long id;
 
-    @ColumnInfo(name = "amount")
-    private double amount;
+    @ColumnInfo(name = "note")
+    private String note;
 
     @ColumnInfo(name = "remind_at")
     private long remindAt;
 
-    @ColumnInfo(name = "tags")
-    private List<String> tags;
+    @ColumnInfo(name = "type")
+    private int type;
+
+    @ColumnInfo(name = "count")
+    private int count;
 }
