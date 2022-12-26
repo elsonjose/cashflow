@@ -1,8 +1,7 @@
 package com.cashflow.adapter;
 
-import static com.cashflow.helper.Constants.STATEMENT_TYPE_DEBIT;
 import static com.cashflow.helper.Constants.STATEMENT_TYPE_CREDIT;
-import static com.cashflow.helper.Constants.STATEMENT_VIEW_MODE_DEFAULT;
+import static com.cashflow.helper.Constants.STATEMENT_TYPE_DEBIT;
 import static com.cashflow.helper.Constants.STATEMENT_VIEW_MODE_INDIVIDUAL;
 import static com.cashflow.helper.Constants.STATEMENT_VIEW_MODE_MONTHLY;
 import static com.cashflow.helper.Constants.STATEMENT_VIEW_MODE_WEEKLY;
@@ -27,7 +26,6 @@ import com.cashflow.db.cashflow.CashItem;
 import com.cashflow.fragments.StatementFragment;
 import com.cashflow.helper.Constants;
 import com.cashflow.helper.PrefHelper;
-import com.cashflow.interfaces.onDeleted;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -36,15 +34,13 @@ import java.util.List;
 public class CashFlowAdapter extends RecyclerView.Adapter<CashFlowAdapter.CashFlowViewHolder> {
 
 
+    private static final String TAG = "CashFlowAdapter";
     List<CashItem> cashItemList;
     Context context;
-    onDeleted deleted;
-    private static final String TAG = "CashFlowAdapter";
 
     public CashFlowAdapter(List<CashItem> cashItemList, Context context, StatementFragment incomeFragment) {
         this.cashItemList = cashItemList;
         this.context = context;
-        deleted = incomeFragment;
     }
 
     @Override
@@ -55,12 +51,14 @@ public class CashFlowAdapter extends RecyclerView.Adapter<CashFlowAdapter.CashFl
     @Override
     public void onBindViewHolder(CashFlowAdapter.CashFlowViewHolder holder, int position) {
 
+        Log.i(TAG, "onBindViewHolder: " + cashItemList.get(position).getTime());
+
         if (cashItemList.get(position).getType().equals(STATEMENT_TYPE_CREDIT)) {
-            holder.amountTextView.setText("+ ₹" + cashItemList.get(position).getAmount());
+            holder.amountTextView.setText("₹ " + cashItemList.get(position).getAmount());
             holder.amountTextView.setTextColor(Color.parseColor("#3fb950"));
         } else if (cashItemList.get(position).getType().equals(STATEMENT_TYPE_DEBIT)) {
 
-            holder.amountTextView.setText("- ₹" + cashItemList.get(position).getAmount());
+            holder.amountTextView.setText("₹ " + Math.abs(cashItemList.get(position).getAmount()));
             holder.amountTextView.setTextColor(Color.parseColor("#da3633"));
         }
         holder.descTextView.setText(cashItemList.get(position).getDesc());
@@ -71,14 +69,12 @@ public class CashFlowAdapter extends RecyclerView.Adapter<CashFlowAdapter.CashFl
             @Override
             public void onClick(View v) {
 
-                int viewMode = new PrefHelper(context).getIntPreference(Constants.CURRENT_VIEW_MODE, STATEMENT_VIEW_MODE_DEFAULT);
-                if(viewMode == STATEMENT_VIEW_MODE_INDIVIDUAL)
-                {
+                int viewMode = new PrefHelper(context).getIntPreference(Constants.CURRENT_VIEW_MODE, STATEMENT_VIEW_MODE_INDIVIDUAL);
+                if (viewMode == STATEMENT_VIEW_MODE_INDIVIDUAL) {
                     context.startActivity(new Intent(context, CashFlowActivity.class).putExtra("id", cashItemList.get(position).getId()));
-                    ((Activity)context).overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-                    ((Activity)context).finish();
-                }else
-                {
+                    ((Activity) context).overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                    ((Activity) context).finish();
+                } else {
                     Toast.makeText(context, "Edit allowed only for individual view", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -97,8 +93,7 @@ public class CashFlowAdapter extends RecyclerView.Adapter<CashFlowAdapter.CashFl
     }
 
     private String getViewModeText(int viewMode) {
-        switch (viewMode)
-        {
+        switch (viewMode) {
             case STATEMENT_VIEW_MODE_WEEKLY: {
                 return "W";
             }

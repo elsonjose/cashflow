@@ -2,7 +2,6 @@ package com.cashflow;
 
 import static com.cashflow.helper.Constants.STATEMENT_TYPE_CREDIT;
 import static com.cashflow.helper.Constants.STATEMENT_TYPE_DEBIT;
-import static com.cashflow.helper.Constants.STATEMENT_VIEW_MODE_DEFAULT;
 import static com.cashflow.helper.Constants.STATEMENT_VIEW_MODE_INDIVIDUAL;
 import static com.cashflow.helper.Constants.STATEMENT_VIEW_MODE_MONTHLY;
 import static com.cashflow.helper.Constants.STATEMENT_VIEW_MODE_WEEKLY;
@@ -24,20 +23,19 @@ import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
-import androidx.room.Room;
 import androidx.viewpager.widget.ViewPager;
 
 import com.cashflow.activity.CashFlowActivity;
-import com.cashflow.db.cashflow.CashFlowDatabase;
-import com.cashflow.fragments.ReminderFragment;
 import com.cashflow.fragments.StatementFragment;
+import com.cashflow.helper.CashFlowHelper;
 import com.cashflow.helper.Constants;
 import com.cashflow.helper.PrefHelper;
-import com.cashflow.interfaces.onChanged;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.tabs.TabLayout;
 
-public class MainActivity extends AppCompatActivity implements onChanged {
+import java.util.TimeZone;
+
+public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivityTAG";
     ViewPager mainViewPager;
@@ -45,19 +43,21 @@ public class MainActivity extends AppCompatActivity implements onChanged {
     TabLayout tabLayout;
     CardView actionbar;
     ImageButton statementFilterBtn, statementAddBtn, statementViewModeBtn;
-    ImageButton  reminderAddBtn;
+    ImageButton reminderAddBtn;
     LinearLayout statementBtnWrapper, reminderBtnWrapper;
-    ReminderFragment reminderFragment;
     StatementFragment statementFragment;
     long filterStart = 0, filterEnd = 0;
+    CashFlowHelper cashFlowHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        reminderFragment = new ReminderFragment();
-        statementFragment = new StatementFragment();
+        cashFlowHelper = new CashFlowHelper(MainActivity.this);
+
+
+        statementFragment = new StatementFragment(cashFlowHelper);
 
         statementBtnWrapper = findViewById(R.id.actionbar_statement_btn_wrapper);
         reminderBtnWrapper = findViewById(R.id.actionbar_reminder_btn_wrapper);
@@ -76,17 +76,16 @@ public class MainActivity extends AppCompatActivity implements onChanged {
         tabLayout.setupWithViewPager(mainViewPager);
         tabLayout.setVisibility(View.GONE);
 
-        CashFlowDatabase database = Room.databaseBuilder(getApplicationContext(), CashFlowDatabase.class, "CashFlow")
-                .fallbackToDestructiveMigration().allowMainThreadQueries().build();
-        double income = database.getCashFlowDao().getAmountSum(STATEMENT_TYPE_CREDIT);
-        double expense = database.getCashFlowDao().getAmountSum(STATEMENT_TYPE_DEBIT);
+
+        double income = cashFlowHelper.getTotalAmountForType(STATEMENT_TYPE_CREDIT, 0, 0);
+        double expense = cashFlowHelper.getTotalAmountForType(STATEMENT_TYPE_DEBIT, 0, 0);
         double diff = income - expense;
         if (diff > 0) {
             headerTextView.setText("₹ " + Math.abs(diff));
             headerTextView.setTextColor(Color.parseColor("#3fb950"));
             balanceTextView.setTextColor(Color.parseColor("#3fb950"));
         } else if (diff < 0) {
-            headerTextView.setText("- ₹ " + Math.abs(diff));
+            headerTextView.setText("₹ " + Math.abs(diff));
             headerTextView.setTextColor(Color.parseColor("#da3633"));
             balanceTextView.setTextColor(Color.parseColor("#da3633"));
         } else {
@@ -156,10 +155,10 @@ public class MainActivity extends AppCompatActivity implements onChanged {
             dateRangePicker.addOnPositiveButtonClickListener(selection -> {
                 statementFragment.isDateRangePicked = true;
                 String[] ranges = selection.toString().replace("Pair{", "").replace("}", "").trim().split(" ");
-                filterStart = Long.parseLong(ranges[0]);
-                filterEnd = Long.parseLong(ranges[1]);
+                long offset = TimeZone.getDefault().getOffset(System.currentTimeMillis());
+                filterStart = Long.parseLong(ranges[0]) - offset;
+                filterEnd = Long.parseLong(ranges[1]) - offset;
                 statementFragment.loadStatement(filterStart, filterEnd);
-
             });
         });
 
@@ -167,18 +166,10 @@ public class MainActivity extends AppCompatActivity implements onChanged {
 
             PopupMenu popupMenu = new PopupMenu(MainActivity.this, statementViewModeBtn);
             popupMenu.getMenuInflater().inflate(R.menu.statement_view_mode, popupMenu.getMenu());
-            if(statementFragment.isDateRangePicked)
-            {
-                popupMenu.getMenu().getItem(0).setVisible(false);
-            }
             popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                 @Override
                 public boolean onMenuItemClick(MenuItem menuItem) {
                     switch (menuItem.getItemId()) {
-                        case R.id.view_mode_single: {
-                            new PrefHelper(MainActivity.this).setPreference(Constants.CURRENT_VIEW_MODE, STATEMENT_VIEW_MODE_INDIVIDUAL);
-                            break;
-                        }
                         case R.id.view_mode_monthly: {
                             new PrefHelper(MainActivity.this).setPreference(Constants.CURRENT_VIEW_MODE, STATEMENT_VIEW_MODE_MONTHLY);
                             break;
@@ -192,48 +183,15 @@ public class MainActivity extends AppCompatActivity implements onChanged {
                             break;
                         }
                         default: {
-                            new PrefHelper(MainActivity.this).setPreference(Constants.CURRENT_VIEW_MODE, STATEMENT_VIEW_MODE_DEFAULT);
+                            new PrefHelper(MainActivity.this).setPreference(Constants.CURRENT_VIEW_MODE, STATEMENT_VIEW_MODE_INDIVIDUAL);
                         }
                     }
-
-                    int viewMode = new PrefHelper(MainActivity.this).getIntPreference(Constants.CURRENT_VIEW_MODE, STATEMENT_VIEW_MODE_DEFAULT);
-                    if (viewMode != STATEMENT_VIEW_MODE_DEFAULT) {
-                        statementFilterBtn.setVisibility(View.VISIBLE);
-                    } else {
-                        statementFilterBtn.setVisibility(View.GONE);
-                    }
-
                     statementFragment.loadStatement(filterStart, filterEnd);
                     return true;
                 }
             });
             popupMenu.show();
         });
-
-        int viewMode = new PrefHelper(MainActivity.this).getIntPreference(Constants.CURRENT_VIEW_MODE, STATEMENT_VIEW_MODE_DEFAULT);
-        if (viewMode != STATEMENT_VIEW_MODE_DEFAULT) {
-            statementFilterBtn.setVisibility(View.VISIBLE);
-        } else {
-            statementFilterBtn.setVisibility(View.GONE);
-        }
-    }
-
-    @Override
-    public void onChanged() {
-        CashFlowDatabase database = Room.databaseBuilder(getApplicationContext(), CashFlowDatabase.class, "CashFlow").allowMainThreadQueries().build();
-        double income = database.getCashFlowDao().getAmountSum(STATEMENT_TYPE_CREDIT);
-        double expense = database.getCashFlowDao().getAmountSum(STATEMENT_TYPE_DEBIT);
-        double diff = income - expense;
-        if (diff >= 0) {
-            headerTextView.setText("Balance: ₹ " + Math.abs(diff));
-            headerTextView.setTextColor(Color.parseColor("#3fb950"));
-        } else if (diff < 0) {
-            headerTextView.setText("Balance: ₹ " + Math.abs(diff));
-            headerTextView.setTextColor(Color.parseColor("#da3633"));
-        } else {
-            headerTextView.setText("Balance: ₹ " + Math.abs(diff));
-
-        }
     }
 
     @Override
@@ -260,20 +218,12 @@ public class MainActivity extends AppCompatActivity implements onChanged {
         @NonNull
         @Override
         public Fragment getItem(int position) {
-            if (position == 1) {
-                return reminderFragment;
-            }
             return statementFragment;
         }
 
         @Override
         public CharSequence getPageTitle(int position) {
-            switch (position) {
-                case 1:
-                    return "Reminder";
-                default:
-                    return "Statement";
-            }
+            return "Statement";
         }
 
         @Override
