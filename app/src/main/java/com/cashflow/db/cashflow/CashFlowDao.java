@@ -12,42 +12,45 @@ import java.util.List;
 public interface CashFlowDao {
 
     @Insert
-    public long addItem(CashItem cashItem);
-
-    @Delete
-    public void deleteItem(CashItem cashItem);
-
-    @Query("DELETE FROM CASHFLOW")
-    public void deleteAll();
-
-    @Query("SELECT * FROM CASHFLOW WHERE TYPE==:t")
-    public List<CashItem> getAllItems(String t);
-
-    @Query("SELECT * FROM CASHFLOW WHERE id==:id")
-    public CashItem getItem(long id);
+    long addItem(CashItem cashItem);
 
     @Update
-    public void UpdateItem(CashItem item);
+    void updateItem(CashItem item);
+
+    @Delete
+    void deleteItem(CashItem cashItem);
+
+    @Query("SELECT * FROM CASHFLOW WHERE id==:id")
+    CashItem getItemById(long id);
+
+    @Query("SELECT 0 AS id,0 AS time,0 AS startDate, 0 AS endDate, 0 AS viewMode, count(*) AS count,  SUM(amount) as amount, week_key FROM CASHFLOW GROUP BY week_key ORDER BY time")
+    List<CashItem> getWeeklyItems();
+
+    @Query("SELECT 0 AS id,0 AS time,0 AS startDate, 0 AS endDate, 0 AS viewMode, count(*) AS count,  SUM(amount) as amount, week_key FROM CASHFLOW  WHERE time between :start AND :end GROUP BY week_key ORDER BY time")
+    List<CashItem> getWeeklyItemsForDateRange(long start, long end);
+
+    @Query("SELECT 0 AS id,0 AS time,0 AS startDate, 0 AS endDate, 0 AS viewMode, count(*) AS count,  SUM(amount) as amount, month_key FROM CASHFLOW GROUP BY month_key ORDER BY time")
+    List<CashItem> getMonthlyItems();
+
+    @Query("SELECT 0 AS id,0 AS time,0 AS startDate, 0 AS endDate, 0 AS viewMode, count(*) AS count,  SUM(amount) as amount, month_key FROM CASHFLOW  WHERE time between :start AND :end GROUP BY month_key ORDER BY time")
+    List<CashItem> getMonthlyItemsForDateRange(long start, long end);
+
+    @Query("SELECT 0 AS id,0 AS time,0 AS startDate, 0 AS endDate, 0 AS viewMode, count(*) AS count,  SUM(amount) as amount, year_key FROM CASHFLOW GROUP BY year_key ORDER BY time")
+    List<CashItem> getYearlyItems();
+
+    @Query("SELECT 0 AS id,0 AS time,0 AS startDate, 0 AS endDate, 0 AS viewMode, count(*) AS count,  SUM(amount) as amount, year_key FROM CASHFLOW  WHERE time between :start AND :end GROUP BY year_key ORDER BY time")
+    List<CashItem> getYearlyItemsForDateRange(long start, long end);
 
     @Query("SELECT * FROM CASHFLOW")
-    public List<CashItem> getAllItems();
+    List<CashItem> getAllItems();
 
-    @Query("SELECT time FROM CASHFLOW ORDER BY time LIMIT 1")
-    public long getStartTimestamp();
+    @Query("SELECT * FROM CASHFLOW WHERE time between :start AND :end")
+    List<CashItem> getAllItemsForDateRange(long start, long end);
 
-    @Query("SELECT time FROM CASHFLOW ORDER BY time DESC LIMIT 1")
-    public long getEndTimestamp();
+    @Query("SELECT SUM(ABS(AMOUNT)) FROM CASHFLOW WHERE TYPE==:t")
+    double getAmountSum(String t);
 
-    @Query("SELECT count(*) FROM CASHFLOW")
-    public long getTotalCount();
-
-    @Query("SELECT SUM(AMOUNT) FROM CASHFLOW WHERE TYPE==:t")
-    public double getAmountSum(String t);
-
-    @Query("SELECT * FROM CASHFLOW WHERE time BETWEEN :start AND :end ORDER BY time DESC")
-    public List<CashItem> getAmountForDateRange(long start,long end);
-
-    @Query("SELECT SUM(AMOUNT) FROM CASHFLOW WHERE time BETWEEN :start AND :end AND TYPE==:t")
-    public double getSumAmountForDateRange(long start,long end, String t);
+    @Query("SELECT SUM(ABS(AMOUNT)) FROM CASHFLOW WHERE time BETWEEN :start AND :end AND TYPE==:t")
+    double getAmountSumForDateRangeByType(String t, long start, long end);
 
 }

@@ -11,6 +11,7 @@ import androidx.viewpager.widget.ViewPager;
 public class MainViewPager extends ViewPager {
 
     private boolean isPagingEnabled = true;
+
     public MainViewPager(@NonNull Context context) {
         super(context);
     }
@@ -27,9 +28,5 @@ public class MainViewPager extends ViewPager {
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
         return this.isPagingEnabled && super.onInterceptTouchEvent(event);
-    }
-
-    public void setPagingEnabled(boolean b) {
-        this.isPagingEnabled = b;
     }
 }

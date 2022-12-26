@@ -4,34 +4,35 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
-import com.cashflow.helper.Constants;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 @Entity(tableName = "CashFlow")
 public class CashItem implements Comparable<CashItem> {
 
+    public long startDate;
+    public long endDate;
+    public int viewMode;
+    public int count;
     @ColumnInfo(name = "id")
     @PrimaryKey(autoGenerate = true)
     private long id;
-
     @ColumnInfo(name = "desc")
     private String desc;
-
     @ColumnInfo(name = "amount")
     private double amount;
-
     @ColumnInfo(name = "type")
     private String type;
-
     @ColumnInfo(name = "time")
     private long time;
-
-    private boolean isGrouped;
-
-    private long startDate;
-
-    private long endDate;
-
-    private int viewMode;
+    @ColumnInfo(name = "year_key")
+    private String yearKey;
+    // Combination of month and year
+    @ColumnInfo(name = "month_key")
+    private String monthKey;
+    // Combination of week and year
+    @ColumnInfo(name = "week_key")
+    private String weekKey;
 
     public CashItem() {
     }
@@ -42,6 +43,26 @@ public class CashItem implements Comparable<CashItem> {
         this.amount = amount;
         this.type = type;
         this.time = time;
+
+        Date date = new Date(time);
+        SimpleDateFormat weekKeyFormat = new SimpleDateFormat("yyyy-ww");
+        this.weekKey = weekKeyFormat.format(date);
+
+        SimpleDateFormat monthKeyFormat = new SimpleDateFormat("yyyy-MM");
+        String yearMonthNumberKey = monthKeyFormat.format(date);
+        this.monthKey = yearMonthNumberKey;
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy");
+        String yearNumberKey = sdf.format(date);
+        this.yearKey = yearNumberKey;
+    }
+
+    public int getCount() {
+        return count;
+    }
+
+    public void setCount(int count) {
+        this.count = count;
     }
 
     public int getViewMode() {
@@ -92,14 +113,6 @@ public class CashItem implements Comparable<CashItem> {
         this.time = time;
     }
 
-    public boolean isGrouped() {
-        return isGrouped;
-    }
-
-    public void setGrouped(boolean grouped) {
-        isGrouped = grouped;
-    }
-
     public long getStartDate() {
         return startDate;
     }
@@ -116,6 +129,30 @@ public class CashItem implements Comparable<CashItem> {
         this.endDate = endDate;
     }
 
+
+    public String getYearKey() {
+        return yearKey;
+    }
+
+    public void setYearKey(String yearKey) {
+        this.yearKey = yearKey;
+    }
+
+    public String getMonthKey() {
+        return monthKey;
+    }
+
+    public void setMonthKey(String monthKey) {
+        this.monthKey = monthKey;
+    }
+
+    public String getWeekKey() {
+        return weekKey;
+    }
+
+    public void setWeekKey(String weekKey) {
+        this.weekKey = weekKey;
+    }
 
     @Override
     public int compareTo(CashItem cashItem) {

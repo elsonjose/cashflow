@@ -1,13 +1,12 @@
 package com.cashflow.fragments;
 
-import static com.cashflow.helper.Constants.STATEMENT_TYPE_DEBIT;
 import static com.cashflow.helper.Constants.STATEMENT_TYPE_CREDIT;
+import static com.cashflow.helper.Constants.STATEMENT_TYPE_DEBIT;
 import static com.cashflow.helper.Constants.STATEMENT_TYPE_UNKNOWN;
-import static com.cashflow.helper.Constants.STATEMENT_VIEW_MODE_DEFAULT;
+import static com.cashflow.helper.Constants.STATEMENT_VIEW_MODE_INDIVIDUAL;
 
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,37 +16,37 @@ import android.widget.TextView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.room.Room;
 
 import com.cashflow.R;
 import com.cashflow.adapter.CashFlowAdapter;
-import com.cashflow.db.cashflow.CashFlowDatabase;
 import com.cashflow.db.cashflow.CashItem;
-import com.cashflow.helper.CashFlowViewTypeHelper;
+import com.cashflow.helper.CashFlowHelper;
 import com.cashflow.helper.Constants;
 import com.cashflow.helper.DateTimeHelper;
 import com.cashflow.helper.PrefHelper;
-import com.cashflow.interfaces.onChanged;
-import com.cashflow.interfaces.onDeleted;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 
-public class StatementFragment extends Fragment implements onDeleted {
+public class StatementFragment extends Fragment {
 
     private static final String TAG = "StatementFragment";
-
-    TextView incomeTextView, expenseTextView, expenseTitleTextView,incomeTitleTextView;
+    public boolean isDateRangePicked = false;
+    public TextView dateRangeView;
+    TextView incomeTextView, expenseTextView, expenseTitleTextView, incomeTitleTextView;
     RecyclerView recyclerView;
     CashFlowAdapter adapter;
     List<CashItem> realStatementList = new ArrayList<>();
-    public boolean isDateRangePicked = false;
     View view;
     TextView emptyStatementTextView;
-    public TextView dateRangeView;
     RelativeLayout contentWrapper;
+    CashFlowHelper cashFlowHelper;
+
+    public StatementFragment(CashFlowHelper cashFlowHelper) {
+        this.cashFlowHelper = cashFlowHelper;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -75,92 +74,64 @@ public class StatementFragment extends Fragment implements onDeleted {
         adapter = new CashFlowAdapter(realStatementList, getContext(), this);
         recyclerView.setAdapter(adapter);
 
-        emptyStatementTextView  = view.findViewById(R.id.empty_statement_text_view);
+        emptyStatementTextView = view.findViewById(R.id.empty_statement_text_view);
         emptyStatementTextView.setText("No statements to view.");
-        contentWrapper  = view.findViewById(R.id.content_wrapper);
+        contentWrapper = view.findViewById(R.id.content_wrapper);
 
-        loadStatement(0,0);
+        loadStatement(0, 0);
         return view;
     }
 
-    public void loadStatementForDateRange(long start, long end){
-        dateRangeView.setText("Range selected: "+ DateTimeHelper.getDate(start)+" to "+DateTimeHelper.getDate(end));
+    public void loadStatementForDateRange(long start, long end) {
+        dateRangeView.setText("Range selected: " + DateTimeHelper.getDate(start) + " to " + DateTimeHelper.getDate(end));
         dateRangeView.setVisibility(View.VISIBLE);
         isDateRangePicked = true;
-        realStatementList.clear();
-        recyclerView.removeAllViews();
-        // add end of day millis to end datetime
-        end+= (24*60*60*1000)-1000;
 
         // add end of day millis to end datetime
-        end+= (24*60*60*1000)-1;
+        end += (24 * 60 * 60 * 1000) - 1000;
 
-        CashFlowDatabase database = Room.databaseBuilder(getContext(), CashFlowDatabase.class, "CashFlow").fallbackToDestructiveMigration()
-                .allowMainThreadQueries().build();
-
-        List<CashItem> statementList = database.getCashFlowDao().getAmountForDateRange(start,end);
+        int viewMode = new PrefHelper(getContext()).getIntPreference(Constants.CURRENT_VIEW_MODE, STATEMENT_VIEW_MODE_INDIVIDUAL);
+        List<CashItem> statementList = cashFlowHelper.getCashItems(viewMode, start, end);
 
         long totalCount = statementList.size();
         if (totalCount > 0) {
             emptyStatementTextView.setVisibility(View.GONE);
             contentWrapper.setVisibility(View.VISIBLE);
-            int viewMode = new PrefHelper(getContext()).getIntPreference(Constants.CURRENT_VIEW_MODE, STATEMENT_VIEW_MODE_DEFAULT);
-            statementList = new CashFlowViewTypeHelper(viewMode).GetCashFlowList(statementList, start, end);
-        }
-        else
-        {
+        } else {
             emptyStatementTextView.setVisibility(View.VISIBLE);
             contentWrapper.setVisibility(View.GONE);
         }
-
-        expenseTextView.setText("-₹ " + database.getCashFlowDao().getSumAmountForDateRange(start,end, STATEMENT_TYPE_DEBIT));
-        incomeTextView.setText("₹ " + database.getCashFlowDao().getSumAmountForDateRange(start,end, STATEMENT_TYPE_CREDIT));
+        expenseTextView.setText("₹ " + cashFlowHelper.getTotalAmountForType(STATEMENT_TYPE_DEBIT, start, end));
+        incomeTextView.setText("₹ " + cashFlowHelper.getTotalAmountForType(STATEMENT_TYPE_CREDIT, start, end));
         populateData(statementList);
     }
 
     public void loadStatement(long start, long end) {
+        realStatementList.clear();
+        recyclerView.removeAllViews();
 
-        if(isDateRangePicked)
-        {
-            loadStatementForDateRange(start,end);
-        }
-        else
-        {
-            realStatementList.clear();
-            recyclerView.removeAllViews();
+        if (isDateRangePicked) {
+            loadStatementForDateRange(start, end);
+        } else {
+            int viewMode = new PrefHelper(getContext()).getIntPreference(Constants.CURRENT_VIEW_MODE, STATEMENT_VIEW_MODE_INDIVIDUAL);
+            List<CashItem> statementList = new CashFlowHelper(getContext()).getCashItems(viewMode, 0, 0);
 
-            CashFlowDatabase database = Room.databaseBuilder(getContext(), CashFlowDatabase.class, "CashFlow").fallbackToDestructiveMigration()
-                    .allowMainThreadQueries().build();
-
-            List<CashItem> statementList = database.getCashFlowDao().getAllItems();
-            Collections.sort(statementList);
-
-            long totalCount = database.getCashFlowDao().getTotalCount();
+            long totalCount = statementList.size();
             if (totalCount > 0) {
-                long startTime = database.getCashFlowDao().getStartTimestamp();
-                long endTime = database.getCashFlowDao().getEndTimestamp();
-                Log.i(TAG, "loadStatement: "+startTime);
-                Log.i(TAG, "loadStatement: "+endTime);
-                int viewMode = new PrefHelper(getContext()).getIntPreference(Constants.CURRENT_VIEW_MODE, STATEMENT_VIEW_MODE_DEFAULT);
-                statementList = new CashFlowViewTypeHelper(viewMode).GetCashFlowList(statementList, startTime, endTime);
-
                 emptyStatementTextView.setVisibility(View.GONE);
                 contentWrapper.setVisibility(View.VISIBLE);
-            }
-            else
-            {
+            } else {
                 emptyStatementTextView.setVisibility(View.VISIBLE);
                 contentWrapper.setVisibility(View.GONE);
             }
-            expenseTextView.setText("-₹ " + database.getCashFlowDao().getAmountSum(STATEMENT_TYPE_DEBIT));
-            incomeTextView.setText("₹ " + database.getCashFlowDao().getAmountSum(STATEMENT_TYPE_CREDIT));
+            expenseTextView.setText("₹ " + cashFlowHelper.getTotalAmountForType(STATEMENT_TYPE_DEBIT, start, end));
+            incomeTextView.setText("₹ " + cashFlowHelper.getTotalAmountForType(STATEMENT_TYPE_CREDIT, start, end));
             populateData(statementList);
-
         }
 
     }
 
-    private void populateData(List<CashItem> statementList){
+    private void populateData(List<CashItem> statementList) {
         for (CashItem item : statementList) {
             if (!item.getType().equals(STATEMENT_TYPE_UNKNOWN)) {
                 realStatementList.add(item);
@@ -168,14 +139,5 @@ public class StatementFragment extends Fragment implements onDeleted {
         }
         Collections.sort(realStatementList);
         adapter.notifyDataSetChanged();
-    }
-
-    @Override
-    public void onDeleted() {
-        CashFlowDatabase database = Room.databaseBuilder(getContext(), CashFlowDatabase.class, "CashFlow").allowMainThreadQueries().build();
-        expenseTextView.setText("-₹ " + database.getCashFlowDao().getAmountSum(STATEMENT_TYPE_DEBIT));
-        incomeTextView.setText("₹ " + database.getCashFlowDao().getAmountSum(STATEMENT_TYPE_CREDIT));
-        onChanged changed = (onChanged) getActivity();
-        changed.onChanged();
     }
 }
