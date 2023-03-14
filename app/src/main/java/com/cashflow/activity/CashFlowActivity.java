@@ -82,6 +82,7 @@ public class CashFlowActivity extends AppCompatActivity {
                     .allowMainThreadQueries().build();
             cashFlowItem = database.getCashFlowDao().getItemById(cashFlowItemId);
             amount.setText("" + cashFlowItem.getAmount());
+            type = cashFlowItem.getType();
             desc.setText(cashFlowItem.getDesc());
             typeTextView.setText("Edit " + cashFlowItem.getType());
         }
