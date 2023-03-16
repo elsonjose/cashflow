@@ -23,9 +23,11 @@ import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.room.Room;
 import androidx.viewpager.widget.ViewPager;
 
 import com.cashflow.activity.CashFlowActivity;
+import com.cashflow.db.cashflow.CashFlowDatabase;
 import com.cashflow.fragments.StatementFragment;
 import com.cashflow.helper.CashFlowHelper;
 import com.cashflow.helper.Constants;
@@ -47,17 +49,15 @@ public class MainActivity extends AppCompatActivity {
     LinearLayout statementBtnWrapper, reminderBtnWrapper;
     StatementFragment statementFragment;
     long filterStart = 0, filterEnd = 0;
-    CashFlowHelper cashFlowHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        cashFlowHelper = new CashFlowHelper(MainActivity.this);
+        CashFlowHelper.database = Room.databaseBuilder(MainActivity.this, CashFlowDatabase.class, "CashFlow").fallbackToDestructiveMigration().allowMainThreadQueries().build();
 
-
-        statementFragment = new StatementFragment(cashFlowHelper);
+        statementFragment = new StatementFragment();
 
         statementBtnWrapper = findViewById(R.id.actionbar_statement_btn_wrapper);
         reminderBtnWrapper = findViewById(R.id.actionbar_reminder_btn_wrapper);
@@ -77,8 +77,8 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.setVisibility(View.GONE);
 
 
-        double income = cashFlowHelper.getTotalAmountForType(STATEMENT_TYPE_CREDIT, 0, 0);
-        double expense = cashFlowHelper.getTotalAmountForType(STATEMENT_TYPE_DEBIT, 0, 0);
+        double income = statementFragment.cashFlowHelper.getTotalAmountForType(STATEMENT_TYPE_CREDIT, 0, 0);
+        double expense = statementFragment.cashFlowHelper.getTotalAmountForType(STATEMENT_TYPE_DEBIT, 0, 0);
         double diff = income - expense;
         if (diff > 0) {
             headerTextView.setText("₹ " + Math.abs(diff));

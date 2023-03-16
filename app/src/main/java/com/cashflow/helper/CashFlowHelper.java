@@ -20,11 +20,9 @@ import java.util.List;
 
 public class CashFlowHelper {
 
-    CashFlowDatabase database;
+    public static CashFlowDatabase database;
 
-    public CashFlowHelper(Context context) {
-        database = Room.databaseBuilder(context, CashFlowDatabase.class, "CashFlow")
-                .fallbackToDestructiveMigration().allowMainThreadQueries().build();
+    public CashFlowHelper() {
     }
 
     public List<CashItem> getCashItems(int viewMode, long startTime, long endTime) {

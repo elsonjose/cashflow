@@ -42,10 +42,10 @@ public class StatementFragment extends Fragment {
     View view;
     TextView emptyStatementTextView;
     RelativeLayout contentWrapper;
-    CashFlowHelper cashFlowHelper;
+    public CashFlowHelper cashFlowHelper;
 
-    public StatementFragment(CashFlowHelper cashFlowHelper) {
-        this.cashFlowHelper = cashFlowHelper;
+    public StatementFragment() {
+        cashFlowHelper = new CashFlowHelper();
     }
 
     @Override
@@ -114,7 +114,7 @@ public class StatementFragment extends Fragment {
             loadStatementForDateRange(start, end);
         } else {
             int viewMode = new PrefHelper(getContext()).getIntPreference(Constants.CURRENT_VIEW_MODE, STATEMENT_VIEW_MODE_INDIVIDUAL);
-            List<CashItem> statementList = new CashFlowHelper(getContext()).getCashItems(viewMode, 0, 0);
+            List<CashItem> statementList = new CashFlowHelper().getCashItems(viewMode, 0, 0);
 
             long totalCount = statementList.size();
             if (totalCount > 0) {
