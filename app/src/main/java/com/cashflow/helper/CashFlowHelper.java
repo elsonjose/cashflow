@@ -71,6 +71,7 @@ public class CashFlowHelper {
             item.setStartDate(weekStartDate.getTime());
             item.setEndDate(weekEndDate + (24 * 60 * 60 * 1000) - 1000);
             item.setViewMode(STATEMENT_VIEW_MODE_WEEKLY);
+            item.setTime(item.getStartDate());
             if (item.getCount() != 1) {
                 item.setDesc(item.getCount() + " transactions");
             } else {
@@ -125,7 +126,7 @@ public class CashFlowHelper {
 
             item.setStartDate(monthStartDate.getTime());
             item.setEndDate(monthEndDate.getTime() + (24 * 60 * 60 * 1000) - 1000);
-
+            item.setTime(item.getStartDate());
             item.setViewMode(STATEMENT_VIEW_MODE_MONTHLY);
             if (item.getCount() != 1) {
                 item.setDesc(item.getCount() + " transactions");
@@ -171,6 +172,7 @@ public class CashFlowHelper {
             item.setStartDate(yearStartDate.getTime());
             item.setEndDate(yearEndDate.getTime() - 1000);
 
+            item.setTime(item.getStartDate());
             item.setViewMode(STATEMENT_VIEW_MODE_YEARLY);
             if (item.getCount() != 1) {
                 item.setDesc(item.getCount() + " transactions");
