@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+      - wf-test
 
 jobs:
   build:
@@ -25,8 +26,19 @@ jobs:
         run: echo $DATA > /home/runner/work/cashflow/cashflow/app/google-services.json
       - name: Build APK
         run: bash ./gradlew assembleDebug --stacktrace
-      - name: Upload APK
-        uses: actions/upload-artifact@v1
+      - name: Install Python
+        uses: actions/setup-python@v2
         with:
-          name: apk
-          path: cashflow.apk 
+          python-version: "3.x"
+      - name: Installing Firebase Admin SDK
+        run: pip install firebase-admin==5.2.0
+      - name: Create cashflow_cloud_secret.json
+        run: cat /home/runner/work/cashflow/cashflow/cashflow_cloud_secret.json | base64
+      - name: Writing secrets to cashflow_cloud_secret.json
+        env:
+          DATA: ${{ secrets.CASHFLOW_CLOUD_SECRET }}
+        run: echo $DATA > /home/runner/work/cashflow/cashflow/cashflow_cloud_secret.json
+      - name: Upload APK
+        env:
+          STORAGE_BUCKET: ${{ secrets.CASHFLOW_STORAGE_BUCKET }}
+        run: python uploadApk.py $STORAGE_BUCKET
