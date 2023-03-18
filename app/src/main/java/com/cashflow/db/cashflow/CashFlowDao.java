@@ -52,5 +52,4 @@ public interface CashFlowDao {
 
     @Query("SELECT SUM(ABS(AMOUNT)) FROM CASHFLOW WHERE time BETWEEN :start AND :end AND TYPE==:t")
     double getAmountSumForDateRangeByType(String t, long start, long end);
-
 }
