@@ -28,4 +28,5 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v1
         with:
+          name: apk
           path: cashflow.apk 
