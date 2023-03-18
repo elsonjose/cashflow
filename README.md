@@ -22,4 +22,4 @@ A android app to track incomes and expenses.
 ![Sample](cashflow.gif)
 
 ## Working Model
-[Download](app-debug.apk)
+[Download](app/build/outputs/apk/debug/app-debug.apk)
