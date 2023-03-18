@@ -17,6 +17,12 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
+      - name: Create google_services.json
+        run: cat /home/runner/work/cashflow/cashflow/app/google_services.json | base64
+      - name: Writing secrets to google_services.json
+          env:
+            DATA: ${{ secrets.GOOGLE_SERVICES_JSON }}
+          run: echo $DATA > /home/runner/work/cashflow/cashflow/app/google-services.json
       - name: Build APK
         run: bash ./gradlew assembleDebug --stacktrace
       - name: Upload APK
