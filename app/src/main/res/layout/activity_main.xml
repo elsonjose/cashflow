@@ -15,32 +15,40 @@
            android:layout_height="match_parent"
            android:orientation="horizontal">
 
-           <TextView
-               android:id="@+id/actionbar_balance_textView"
-               style="@style/MaterialAlertDialog.MaterialComponents.Title.Text"
-               android:layout_width="wrap_content"
+           <LinearLayout
+               android:layout_width="0dp"
                android:layout_height="wrap_content"
+               android:orientation="vertical"
                android:layout_gravity="center_vertical"
                android:layout_marginStart="16dp"
-               android:textSize="20sp"
-               android:maxLines="1"
-               android:text="Balance: "
-               android:ellipsize="end"
-               android:textStyle="bold" />
+               android:layout_weight="1">
 
-           <TextView
-               android:id="@+id/actionbar_textView"
-               style="@style/MaterialAlertDialog.MaterialComponents.Title.Text"
-               android:layout_width="match_parent"
-               android:layout_height="wrap_content"
-               android:layout_gravity="center_vertical"
-               android:layout_marginStart="2dp"
-               android:layout_marginEnd="16dp"
-               android:textSize="20sp"
-               android:maxLines="1"
-               android:layout_weight="1"
-               android:ellipsize="middle"
-               android:textStyle="bold" />
+               <TextView
+                   android:id="@+id/actionbar_balance_textView"
+                   style="@style/MaterialAlertDialog.MaterialComponents.Title.Text"
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
+                   android:textSize="14sp"
+                   android:maxLines="1"
+                   android:text="Balance"
+                   android:ellipsize="end"
+                   android:textStyle="bold" />
+
+               <TextView
+                   android:id="@+id/actionbar_textView"
+                   style="@style/MaterialAlertDialog.MaterialComponents.Title.Text"
+                   android:layout_width="match_parent"
+                   android:layout_height="wrap_content"
+                   android:layout_gravity="center_vertical"
+                   android:layout_marginEnd="16dp"
+                   android:textSize="18sp"
+                   android:maxLines="1"
+                   android:layout_weight="1"
+                   android:ellipsize="middle"
+                   android:textStyle="bold" />
+
+           </LinearLayout>
+
 
            <LinearLayout
                android:id="@+id/actionbar_statement_btn_wrapper"

@@ -81,7 +81,7 @@ public class CashFlowActivity extends AppCompatActivity {
             CashFlowDatabase database = Room.databaseBuilder(CashFlowActivity.this, CashFlowDatabase.class, "CashFlow").fallbackToDestructiveMigration()
                     .allowMainThreadQueries().build();
             cashFlowItem = database.getCashFlowDao().getItemById(cashFlowItemId);
-            amount.setText("" + cashFlowItem.getAmount());
+            amount.setText("" + Math.abs(cashFlowItem.getAmount()));
             type = cashFlowItem.getType();
             desc.setText(cashFlowItem.getDesc());
             typeTextView.setText("Edit " + cashFlowItem.getType());

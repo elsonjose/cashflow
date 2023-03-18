@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -76,21 +77,7 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.setupWithViewPager(mainViewPager);
         tabLayout.setVisibility(View.GONE);
 
-
-        double income = statementFragment.cashFlowHelper.getTotalAmountForType(STATEMENT_TYPE_CREDIT, 0, 0);
-        double expense = statementFragment.cashFlowHelper.getTotalAmountForType(STATEMENT_TYPE_DEBIT, 0, 0);
-        double diff = income - expense;
-        if (diff > 0) {
-            headerTextView.setText("₹ " + Math.abs(diff));
-            headerTextView.setTextColor(Color.parseColor("#3fb950"));
-            balanceTextView.setTextColor(Color.parseColor("#3fb950"));
-        } else if (diff < 0) {
-            headerTextView.setText("₹ " + Math.abs(diff));
-            headerTextView.setTextColor(Color.parseColor("#da3633"));
-            balanceTextView.setTextColor(Color.parseColor("#da3633"));
-        } else {
-            headerTextView.setText("₹ " + Math.abs(diff));
-        }
+        setBalanceAmount(0, 0);
 
         mainViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -158,6 +145,7 @@ public class MainActivity extends AppCompatActivity {
                 long offset = TimeZone.getDefault().getOffset(System.currentTimeMillis());
                 filterStart = Long.parseLong(ranges[0]) - offset;
                 filterEnd = Long.parseLong(ranges[1]) - offset;
+                setBalanceAmount(filterStart, filterEnd + (24 * 60 * 60 * 1000) - 1000);
                 statementFragment.loadStatement(filterStart, filterEnd);
             });
         });
@@ -194,6 +182,40 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void setBalanceAmount(long start, long end) {
+        double income = statementFragment.cashFlowHelper.getTotalAmountForType(STATEMENT_TYPE_CREDIT, start, end);
+        double expense = statementFragment.cashFlowHelper.getTotalAmountForType(STATEMENT_TYPE_DEBIT, start, end);
+        double diff = getSubtractedValue(income, expense);
+        if (diff > 0) {
+            headerTextView.setText("₹ " + Math.abs(diff));
+            headerTextView.setTextColor(Color.parseColor("#3fb950"));
+            balanceTextView.setTextColor(Color.parseColor("#3fb950"));
+        } else if (diff < 0) {
+            headerTextView.setText("₹ " + Math.abs(diff));
+            headerTextView.setTextColor(Color.parseColor("#da3633"));
+            balanceTextView.setTextColor(Color.parseColor("#da3633"));
+        } else {
+            headerTextView.setText("₹ " + Math.abs(diff));
+        }
+    }
+
+    private double getSubtractedValue(double income, double expense) {
+        int noOfDecimals = Math.max(getNumberOfDecimals(income), getNumberOfDecimals(expense));
+        double updatedIncome = income * Math.pow(10, noOfDecimals);
+        double updatedExpense = expense * Math.pow(10, noOfDecimals);
+        double diff = updatedIncome - updatedExpense;
+        return diff * Math.pow(10, -1 * noOfDecimals);
+    }
+
+    private int getNumberOfDecimals(double value) {
+        String val = String.valueOf(value);
+        if (!val.contains(".")) {
+            return 0;
+        }
+        String[] values = val.split("\\.");
+        return values[1].length();
+    }
+
     @Override
     public void onBackPressed() {
         if (mainViewPager.getCurrentItem() != 0) {
@@ -203,6 +225,7 @@ public class MainActivity extends AppCompatActivity {
             statementFragment.isDateRangePicked = false;
             filterStart = 0;
             filterEnd = 0;
+            setBalanceAmount(filterStart, filterEnd);
             statementFragment.loadStatement(filterStart, filterEnd);
         } else {
             super.onBackPressed();
