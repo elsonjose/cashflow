@@ -1,0 +1,43 @@
+name: cashflow-build
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build CashFlow APK
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Setup JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+      - name: Create Secret google_services.json
+        run: cat /home/runner/work/cashflow/cashflow/app/google_services.json | base64
+      - name: Writing Secret google_services.json
+        env:
+          DATA: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: echo $DATA > /home/runner/work/cashflow/cashflow/app/google-services.json
+      - name: Build APK
+        run: bash ./gradlew assembleDebug --stacktrace
+      - name: Install Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.x"
+      - name: Installing Firebase Admin SDK
+        run: pip install firebase-admin==5.2.0
+      - name: Create Secret cashflow_cloud_secret.json
+        run: cat /home/runner/work/cashflow/cashflow/cashflow_cloud_secret.json | base64
+      - name: Writing Secret cashflow_cloud_secret.json
+        env:
+          DATA: ${{ secrets.CASHFLOW_CLOUD_SECRET }}
+        run: echo $DATA > /home/runner/work/cashflow/cashflow/cashflow_cloud_secret.json
+      - name: Upload APK
+        env:
+          STORAGE_BUCKET: ${{ secrets.CASHFLOW_STORAGE_BUCKET }}
+        run: python uploadApk.py $STORAGE_BUCKET
