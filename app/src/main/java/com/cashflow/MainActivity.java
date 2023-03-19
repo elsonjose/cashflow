@@ -10,6 +10,7 @@ import static com.cashflow.helper.Constants.STATEMENT_VIEW_MODE_YEARLY;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
@@ -36,6 +37,7 @@ import com.cashflow.helper.PrefHelper;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.tabs.TabLayout;
 
+import java.math.BigDecimal;
 import java.util.TimeZone;
 
 public class MainActivity extends AppCompatActivity {
@@ -200,20 +202,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private double getSubtractedValue(double income, double expense) {
-        int noOfDecimals = Math.max(getNumberOfDecimals(income), getNumberOfDecimals(expense));
-        double updatedIncome = income * Math.pow(10, noOfDecimals);
-        double updatedExpense = expense * Math.pow(10, noOfDecimals);
-        double diff = updatedIncome - updatedExpense;
-        return diff * Math.pow(10, -1 * noOfDecimals);
-    }
-
-    private int getNumberOfDecimals(double value) {
-        String val = String.valueOf(value);
-        if (!val.contains(".")) {
-            return 0;
-        }
-        String[] values = val.split("\\.");
-        return values[1].length();
+        String incomeStr = String.valueOf(income);
+        String expenseStr = String.valueOf(expense);
+        BigDecimal difference = new BigDecimal(incomeStr).subtract(new BigDecimal(expenseStr));
+        return difference.doubleValue();
     }
 
     @Override
