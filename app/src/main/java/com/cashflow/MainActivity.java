@@ -10,13 +10,11 @@ import static com.cashflow.helper.Constants.STATEMENT_VIEW_MODE_YEARLY;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -53,6 +51,8 @@ public class MainActivity extends AppCompatActivity {
     StatementFragment statementFragment;
     long filterStart = 0, filterEnd = 0;
 
+    MaterialDatePicker dateRangePicker;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,6 +80,17 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.setVisibility(View.GONE);
 
         setBalanceAmount(0, 0);
+
+        dateRangePicker = MaterialDatePicker.Builder.dateRangePicker().build();
+        dateRangePicker.addOnPositiveButtonClickListener(selection -> {
+            statementFragment.isDateRangePicked = true;
+            String[] ranges = selection.toString().replace("Pair{", "").replace("}", "").trim().split(" ");
+            long offset = TimeZone.getDefault().getOffset(System.currentTimeMillis());
+            filterStart = Long.parseLong(ranges[0]) - offset;
+            filterEnd = Long.parseLong(ranges[1]) - offset;
+            setBalanceAmount(filterStart, filterEnd + (24 * 60 * 60 * 1000) - 1000);
+            statementFragment.loadStatement(filterStart, filterEnd);
+        });
 
         mainViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -139,17 +150,9 @@ public class MainActivity extends AppCompatActivity {
 
         statementFilterBtn.setOnClickListener(v -> {
 
-            MaterialDatePicker dateRangePicker = MaterialDatePicker.Builder.dateRangePicker().build();
-            dateRangePicker.show(getSupportFragmentManager(), dateRangePicker.getTag());
-            dateRangePicker.addOnPositiveButtonClickListener(selection -> {
-                statementFragment.isDateRangePicked = true;
-                String[] ranges = selection.toString().replace("Pair{", "").replace("}", "").trim().split(" ");
-                long offset = TimeZone.getDefault().getOffset(System.currentTimeMillis());
-                filterStart = Long.parseLong(ranges[0]) - offset;
-                filterEnd = Long.parseLong(ranges[1]) - offset;
-                setBalanceAmount(filterStart, filterEnd + (24 * 60 * 60 * 1000) - 1000);
-                statementFragment.loadStatement(filterStart, filterEnd);
-            });
+            if (!dateRangePicker.isVisible()) {
+                dateRangePicker.show(getSupportFragmentManager(), dateRangePicker.getTag());
+            }
         });
 
         statementViewModeBtn.setOnClickListener(view -> {
