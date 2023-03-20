@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        CashFlowHelper.database = Room.databaseBuilder(MainActivity.this, CashFlowDatabase.class, "CashFlow").fallbackToDestructiveMigration().allowMainThreadQueries().build();
+        CashFlowHelper.database = Room.databaseBuilder(MainActivity.this, CashFlowDatabase.class, "CashFlow").allowMainThreadQueries().build();
 
         statementFragment = new StatementFragment();
 
