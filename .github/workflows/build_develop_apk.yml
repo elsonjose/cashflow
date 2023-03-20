@@ -40,4 +40,4 @@ jobs:
       - name: Upload APK
         env:
           STORAGE_BUCKET: ${{ secrets.CASHFLOW_STORAGE_BUCKET }}
-        run: python uploadApk.py $STORAGE_BUCKET cashflow.apk
+        run: python uploadApk.py $STORAGE_BUCKET cashflow-dev.apk
