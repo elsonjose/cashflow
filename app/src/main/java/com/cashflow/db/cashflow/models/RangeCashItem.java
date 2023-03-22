@@ -1,10 +1,8 @@
 package com.cashflow.db.cashflow.models;
 
-import androidx.room.Ignore;
-
 import com.cashflow.db.cashflow.CashItem;
 
-public class WeeklyCashItem extends CashItem {
+public class RangeCashItem extends CashItem {
 
     public double credit;
 
