@@ -8,17 +8,23 @@ import static com.cashflow.helper.Constants.STATEMENT_VIEW_MODE_WEEKLY;
 import static com.cashflow.helper.Constants.STATEMENT_VIEW_MODE_YEARLY;
 
 import android.content.Context;
+import android.util.Log;
 
 import androidx.room.Room;
 
 import com.cashflow.db.cashflow.CashFlowDatabase;
 import com.cashflow.db.cashflow.CashItem;
+import com.cashflow.db.cashflow.models.WeeklyCashItem;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
 public class CashFlowHelper {
+
+    private static final String TAG = "CashFlowHelper";
 
     public static CashFlowDatabase database;
 
@@ -49,7 +55,8 @@ public class CashFlowHelper {
 
     private List<CashItem> getWeeklyCashItem(long startTime, long endTime) {
 
-        List<CashItem> itemList;
+        List<WeeklyCashItem> itemList;
+        List<CashItem> cashItemList = new ArrayList<>();
 
         if (startTime == 0 && endTime == 0) {
             itemList = database.getCashFlowDao().getWeeklyItems();
@@ -60,7 +67,7 @@ public class CashFlowHelper {
         Calendar calendar = Calendar.getInstance();
 
         for (int i = 0; i < itemList.size(); i++) {
-            CashItem item = itemList.get(i);
+            WeeklyCashItem item = itemList.get(i);
             String[] yearWeekNumber = item.getWeekKey().split("-");
             calendar.clear();
             calendar.set(Calendar.YEAR, Integer.parseInt(yearWeekNumber[0]));
@@ -73,6 +80,13 @@ public class CashFlowHelper {
             item.setEndDate(weekEndDate + (24 * 60 * 60 * 1000) - 1000);
             item.setViewMode(STATEMENT_VIEW_MODE_WEEKLY);
             item.setTime(item.getStartDate());
+
+            Log.i(TAG, "getWeeklyCashItem: "+item.getWeekKey());
+
+            BigDecimal credit = new BigDecimal(String.valueOf(item.getCredit()));
+            BigDecimal debit = new BigDecimal(String.valueOf(item.getDebit()));
+            item.setAmount(credit.subtract(debit).doubleValue());
+
             if (item.getCount() != 1) {
                 item.setDesc(item.getCount() + " transactions");
             } else {
@@ -83,9 +97,11 @@ public class CashFlowHelper {
             } else {
                 item.setType(STATEMENT_TYPE_DEBIT);
             }
+
+            cashItemList.add(item.getCashItem());
         }
 
-        return itemList;
+        return cashItemList;
     }
 
     private List<CashItem> getMonthlyCashItems(long startTime, long endTime) {
