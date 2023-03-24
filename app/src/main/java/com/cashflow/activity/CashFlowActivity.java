@@ -78,7 +78,7 @@ public class CashFlowActivity extends AppCompatActivity {
             isEdit = true;
             deleteBtn.setVisibility(View.VISIBLE);
             createOrUpdateBtn.setText("Update");
-            CashFlowDatabase database = Room.databaseBuilder(CashFlowActivity.this, CashFlowDatabase.class, "CashFlow").fallbackToDestructiveMigration()
+            CashFlowDatabase database = Room.databaseBuilder(CashFlowActivity.this, CashFlowDatabase.class, "CashFlow")
                     .allowMainThreadQueries().build();
             cashFlowItem = database.getCashFlowDao().getItemById(cashFlowItemId);
             amount.setText("" + Math.abs(cashFlowItem.getAmount()));

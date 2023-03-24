@@ -2,9 +2,11 @@ package com.cashflow.db.cashflow;
 
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 @Entity(tableName = "CashFlow")
@@ -14,6 +16,7 @@ public class CashItem implements Comparable<CashItem> {
     public long endDate;
     public int viewMode;
     public int count;
+
     @ColumnInfo(name = "id")
     @PrimaryKey(autoGenerate = true)
     private long id;
@@ -45,7 +48,11 @@ public class CashItem implements Comparable<CashItem> {
         this.time = time;
 
         Date date = new Date(time);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.setFirstDayOfWeek(Calendar.SUNDAY);
         SimpleDateFormat weekKeyFormat = new SimpleDateFormat("yyyy-ww");
+        weekKeyFormat.setCalendar(calendar);
         this.weekKey = weekKeyFormat.format(date);
 
         SimpleDateFormat monthKeyFormat = new SimpleDateFormat("yyyy-MM");

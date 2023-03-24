@@ -15,7 +15,6 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -29,6 +28,7 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.cashflow.activity.CashFlowActivity;
 import com.cashflow.db.cashflow.CashFlowDatabase;
+import com.cashflow.db.cashflow.CashItem;
 import com.cashflow.fragments.StatementFragment;
 import com.cashflow.helper.CashFlowHelper;
 import com.cashflow.helper.Constants;
@@ -36,6 +36,8 @@ import com.cashflow.helper.PrefHelper;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.tabs.TabLayout;
 
+import java.math.BigDecimal;
+import java.util.List;
 import java.util.TimeZone;
 
 public class MainActivity extends AppCompatActivity {
@@ -51,12 +53,14 @@ public class MainActivity extends AppCompatActivity {
     StatementFragment statementFragment;
     long filterStart = 0, filterEnd = 0;
 
+    MaterialDatePicker dateRangePicker;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        CashFlowHelper.database = Room.databaseBuilder(MainActivity.this, CashFlowDatabase.class, "CashFlow").fallbackToDestructiveMigration().allowMainThreadQueries().build();
+        CashFlowHelper.database = Room.databaseBuilder(MainActivity.this, CashFlowDatabase.class, "CashFlow").allowMainThreadQueries().build();
 
         statementFragment = new StatementFragment();
 
@@ -78,6 +82,17 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.setVisibility(View.GONE);
 
         setBalanceAmount(0, 0);
+
+        dateRangePicker = MaterialDatePicker.Builder.dateRangePicker().build();
+        dateRangePicker.addOnPositiveButtonClickListener(selection -> {
+            statementFragment.isDateRangePicked = true;
+            String[] ranges = selection.toString().replace("Pair{", "").replace("}", "").trim().split(" ");
+            long offset = TimeZone.getDefault().getOffset(System.currentTimeMillis());
+            filterStart = Long.parseLong(ranges[0]) - offset;
+            filterEnd = Long.parseLong(ranges[1]) - offset;
+            setBalanceAmount(filterStart, filterEnd + (24 * 60 * 60 * 1000) - 1000);
+            statementFragment.loadStatement(filterStart, filterEnd);
+        });
 
         mainViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -137,17 +152,9 @@ public class MainActivity extends AppCompatActivity {
 
         statementFilterBtn.setOnClickListener(v -> {
 
-            MaterialDatePicker dateRangePicker = MaterialDatePicker.Builder.dateRangePicker().build();
-            dateRangePicker.show(getSupportFragmentManager(), dateRangePicker.getTag());
-            dateRangePicker.addOnPositiveButtonClickListener(selection -> {
-                statementFragment.isDateRangePicked = true;
-                String[] ranges = selection.toString().replace("Pair{", "").replace("}", "").trim().split(" ");
-                long offset = TimeZone.getDefault().getOffset(System.currentTimeMillis());
-                filterStart = Long.parseLong(ranges[0]) - offset;
-                filterEnd = Long.parseLong(ranges[1]) - offset;
-                setBalanceAmount(filterStart, filterEnd + (24 * 60 * 60 * 1000) - 1000);
-                statementFragment.loadStatement(filterStart, filterEnd);
-            });
+            if (!dateRangePicker.isVisible()) {
+                dateRangePicker.show(getSupportFragmentManager(), dateRangePicker.getTag());
+            }
         });
 
         statementViewModeBtn.setOnClickListener(view -> {
@@ -200,20 +207,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private double getSubtractedValue(double income, double expense) {
-        int noOfDecimals = Math.max(getNumberOfDecimals(income), getNumberOfDecimals(expense));
-        double updatedIncome = income * Math.pow(10, noOfDecimals);
-        double updatedExpense = expense * Math.pow(10, noOfDecimals);
-        double diff = updatedIncome - updatedExpense;
-        return diff * Math.pow(10, -1 * noOfDecimals);
-    }
-
-    private int getNumberOfDecimals(double value) {
-        String val = String.valueOf(value);
-        if (!val.contains(".")) {
-            return 0;
-        }
-        String[] values = val.split("\\.");
-        return values[1].length();
+        String incomeStr = String.valueOf(income);
+        String expenseStr = String.valueOf(expense);
+        BigDecimal difference = new BigDecimal(incomeStr).subtract(new BigDecimal(expenseStr));
+        return difference.doubleValue();
     }
 
     @Override

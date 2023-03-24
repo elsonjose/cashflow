@@ -7,7 +7,7 @@ initialize_app(credentials.Certificate('cashflow_cloud_secret.json'),{
 })
 
 bucket = storage.bucket()
-blob = bucket.blob('cashflow.apk')
+blob = bucket.blob(sys.argv[2])
 blob.upload_from_filename('app/build/outputs/apk/debug/app-debug.apk')
 blob.make_public()
 print(blob.public_url)
