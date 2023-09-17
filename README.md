@@ -21,6 +21,11 @@ A android app to track incomes and expenses.
    - Allows to export data as CSV
 4. Import Data
    - Allows import of CSV data
+5. Cloud support
+   - This functionality takes all the database from the device itself to a cloud resource providing backup.
+6. Expense sharing
+   - Allow a expense to be splitted among your friends. User can put the whole amount and the number of people. The app will provide amount that the each person has to pay.
+   Extend this to uneven spending as well where a user can split the bill un-equally among the peers.
 
 ## Prototypes
 - [Stable (main branch)](https://storage.googleapis.com/cashflow-fc29a.appspot.com/cashflow.apk)
