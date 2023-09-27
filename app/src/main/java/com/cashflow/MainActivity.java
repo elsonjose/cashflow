@@ -28,23 +28,22 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.cashflow.activity.CashFlowActivity;
 import com.cashflow.db.cashflow.CashFlowDatabase;
-import com.cashflow.db.cashflow.CashItem;
 import com.cashflow.fragments.StatementFragment;
 import com.cashflow.helper.CashFlowHelper;
 import com.cashflow.helper.Constants;
 import com.cashflow.helper.PrefHelper;
+import com.cashflow.util.DataUtil;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.tabs.TabLayout;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.TimeZone;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivityTAG";
     ViewPager mainViewPager;
-    TextView headerTextView, balanceTextView;
+    TextView headerTextView, balanceTextView, statementViewTypeTextView;
     TabLayout tabLayout;
     CardView actionbar;
     ImageButton statementFilterBtn, statementAddBtn, statementViewModeBtn;
@@ -55,10 +54,14 @@ public class MainActivity extends AppCompatActivity {
 
     MaterialDatePicker dateRangePicker;
 
+    PrefHelper prefHelper;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        prefHelper = new PrefHelper(MainActivity.this);
 
         CashFlowHelper.database = Room.databaseBuilder(MainActivity.this, CashFlowDatabase.class, "CashFlow").allowMainThreadQueries().build();
 
@@ -75,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
         actionbar = findViewById(R.id.actionbar);
         tabLayout = findViewById(R.id.tab_layout);
         headerTextView = findViewById(R.id.actionbar_textView);
+        statementViewTypeTextView = findViewById(R.id.statement_view_text_view);
         balanceTextView = findViewById(R.id.actionbar_balance_textView);
         mainViewPager = findViewById(R.id.main_view_pager);
         mainViewPager.setAdapter(new MainFragmentAdapter(getSupportFragmentManager(), 0));
@@ -82,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.setVisibility(View.GONE);
 
         setBalanceAmount(0, 0);
+        UpdateBadgeIconForViewMode();
 
         dateRangePicker = MaterialDatePicker.Builder.dateRangePicker().build();
         dateRangePicker.addOnPositiveButtonClickListener(selection -> {
@@ -129,18 +134,14 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public boolean onMenuItemClick(MenuItem menuItem) {
                         // Toast message on menu item clicked
-                        switch (menuItem.getItemId()) {
-                            case R.id.income: {
-                                startActivity(new Intent(MainActivity.this, CashFlowActivity.class).putExtra("type", STATEMENT_TYPE_CREDIT));
-                                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-                                finish();
-                                break;
-                            }
-                            default: {
-                                startActivity(new Intent(MainActivity.this, CashFlowActivity.class).putExtra("type", STATEMENT_TYPE_DEBIT));
-                                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-                                finish();
-                            }
+                        if (menuItem.getItemId() == R.id.income) {
+                            startActivity(new Intent(MainActivity.this, CashFlowActivity.class).putExtra("type", STATEMENT_TYPE_CREDIT));
+                            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                            finish();
+                        } else {
+                            startActivity(new Intent(MainActivity.this, CashFlowActivity.class).putExtra("type", STATEMENT_TYPE_DEBIT));
+                            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                            finish();
                         }
                         return true;
                     }
@@ -166,27 +167,33 @@ public class MainActivity extends AppCompatActivity {
                 public boolean onMenuItemClick(MenuItem menuItem) {
                     switch (menuItem.getItemId()) {
                         case R.id.view_mode_monthly: {
-                            new PrefHelper(MainActivity.this).setPreference(Constants.CURRENT_VIEW_MODE, STATEMENT_VIEW_MODE_MONTHLY);
+                            prefHelper.setPreference(Constants.CURRENT_VIEW_MODE, STATEMENT_VIEW_MODE_MONTHLY);
                             break;
                         }
                         case R.id.view_mode_yearly: {
-                            new PrefHelper(MainActivity.this).setPreference(Constants.CURRENT_VIEW_MODE, STATEMENT_VIEW_MODE_YEARLY);
+                            prefHelper.setPreference(Constants.CURRENT_VIEW_MODE, STATEMENT_VIEW_MODE_YEARLY);
                             break;
                         }
                         case R.id.view_mode_weekly: {
-                            new PrefHelper(MainActivity.this).setPreference(Constants.CURRENT_VIEW_MODE, STATEMENT_VIEW_MODE_WEEKLY);
+                            prefHelper.setPreference(Constants.CURRENT_VIEW_MODE, STATEMENT_VIEW_MODE_WEEKLY);
                             break;
                         }
                         default: {
-                            new PrefHelper(MainActivity.this).setPreference(Constants.CURRENT_VIEW_MODE, STATEMENT_VIEW_MODE_INDIVIDUAL);
+                            prefHelper.setPreference(Constants.CURRENT_VIEW_MODE, STATEMENT_VIEW_MODE_INDIVIDUAL);
                         }
                     }
                     statementFragment.loadStatement(filterStart, filterEnd);
+                    UpdateBadgeIconForViewMode();
                     return true;
                 }
             });
             popupMenu.show();
         });
+    }
+
+    private void UpdateBadgeIconForViewMode() {
+        int viewType = prefHelper.getIntPreference(Constants.CURRENT_VIEW_MODE, STATEMENT_VIEW_MODE_INDIVIDUAL);
+        statementViewTypeTextView.setText(DataUtil.getViewModeBadge(viewType));
     }
 
     private void setBalanceAmount(long start, long end) {
