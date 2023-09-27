@@ -63,7 +63,6 @@ public class CashFlowAdapter extends RecyclerView.Adapter<CashFlowAdapter.CashFl
         }
         holder.descTextView.setText(cashItemList.get(position).getDesc());
         holder.timeTextView.setText(getTimeData(cashItemList.get(position)));
-        holder.viewTypeTextView.setText(getViewModeText(cashItemList.get(position).getViewMode()));
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -90,22 +89,6 @@ public class CashFlowAdapter extends RecyclerView.Adapter<CashFlowAdapter.CashFl
     @Override
     public int getItemViewType(int position) {
         return position;
-    }
-
-    private String getViewModeText(int viewMode) {
-        switch (viewMode) {
-            case STATEMENT_VIEW_MODE_WEEKLY: {
-                return "W";
-            }
-            case STATEMENT_VIEW_MODE_MONTHLY: {
-                return "M";
-            }
-            case STATEMENT_VIEW_MODE_YEARLY: {
-                return "Y";
-            }
-            default:
-                return "I";
-        }
     }
 
     private String getTimeData(CashItem cashItem) {
@@ -174,7 +157,7 @@ public class CashFlowAdapter extends RecyclerView.Adapter<CashFlowAdapter.CashFl
 
     public class CashFlowViewHolder extends RecyclerView.ViewHolder {
 
-        TextView amountTextView, timeTextView, descTextView, viewTypeTextView;
+        TextView amountTextView, timeTextView, descTextView;
 
         public CashFlowViewHolder(View itemView) {
             super(itemView);
@@ -182,7 +165,6 @@ public class CashFlowAdapter extends RecyclerView.Adapter<CashFlowAdapter.CashFl
             amountTextView = itemView.findViewById(R.id.amount);
             timeTextView = itemView.findViewById(R.id.time);
             descTextView = itemView.findViewById(R.id.desc);
-            viewTypeTextView = itemView.findViewById(R.id.view_type);
         }
     }
 
