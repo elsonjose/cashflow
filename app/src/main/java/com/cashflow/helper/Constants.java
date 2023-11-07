@@ -5,6 +5,7 @@ public class Constants {
     public static final String STATEMENT_TYPE_DEBIT = "debit";
     public static final String STATEMENT_TYPE_UNKNOWN = "unknown";
     public static final String CURRENT_VIEW_MODE = "view-mode";
+
     public static final int STATEMENT_VIEW_MODE_INDIVIDUAL = 0;
     public static final int STATEMENT_VIEW_MODE_WEEKLY = 1;
     public static final int STATEMENT_VIEW_MODE_MONTHLY = 2;
@@ -14,4 +15,6 @@ public class Constants {
     public static final String STATEMENT_BADGE_WEEKLY = "W";
     public static final String STATEMENT_BADGE_MONTHLY = "M";
     public static final String STATEMENT_BADGE_YEARLY = "Y";
+
+    public static final int TAKE_COUNT = 15;
 }

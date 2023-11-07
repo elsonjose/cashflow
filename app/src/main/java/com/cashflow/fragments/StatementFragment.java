@@ -7,12 +7,15 @@ import static com.cashflow.helper.Constants.STATEMENT_VIEW_MODE_INDIVIDUAL;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -34,7 +37,9 @@ public class StatementFragment extends Fragment {
 
     private static final String TAG = "StatementFragment";
     public boolean isDateRangePicked = false;
+    public long startDate = 0, endDate = 0;
     public TextView dateRangeView;
+    public CashFlowHelper cashFlowHelper;
     TextView incomeTextView, expenseTextView, expenseTitleTextView, incomeTitleTextView;
     RecyclerView recyclerView;
     CashFlowAdapter adapter;
@@ -42,15 +47,13 @@ public class StatementFragment extends Fragment {
     View view;
     TextView emptyStatementTextView;
     RelativeLayout contentWrapper;
-    public CashFlowHelper cashFlowHelper;
 
     public StatementFragment() {
         cashFlowHelper = new CashFlowHelper();
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_tab_item, container, false);
 
         dateRangeView = view.findViewById(R.id.date_range_text_view);
@@ -78,7 +81,25 @@ public class StatementFragment extends Fragment {
         emptyStatementTextView.setText("No statements to view.");
         contentWrapper = view.findViewById(R.id.content_wrapper);
 
-        loadStatement(0, 0);
+        loadStatement(startDate, endDate);
+
+//        recyclerView.setOnScrollChangeListener();
+
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                if (!recyclerView.canScrollVertically(1) && !cashFlowHelper.allItemsFetched) {
+                    loadStatement(startDate, endDate);
+                    Log.i(TAG, "onScrolled: loading more items");
+                    Log.i(TAG, "onScrolled: dx "+dx+" dy "+dy);
+                } else {
+                    Toast.makeText(getContext(), "No more items to view", Toast.LENGTH_SHORT).show();
+                    Log.i(TAG, "onScrolled: end reached");
+                }
+            }
+        });
+
         return view;
     }
 
@@ -92,6 +113,8 @@ public class StatementFragment extends Fragment {
 
         int viewMode = new PrefHelper(getContext()).getIntPreference(Constants.CURRENT_VIEW_MODE, STATEMENT_VIEW_MODE_INDIVIDUAL);
         List<CashItem> statementList = cashFlowHelper.getCashItems(viewMode, start, end);
+
+        Log.i(TAG, "loadStatement: items loaded: " + statementList.size());
 
         long totalCount = statementList.size();
         if (totalCount > 0) {
@@ -110,11 +133,18 @@ public class StatementFragment extends Fragment {
         realStatementList.clear();
         recyclerView.removeAllViews();
 
+        startDate = start;
+        endDate = end;
+
+        Log.i(TAG, "loadStatement: start " + startDate + " end " + endDate);
+
         if (isDateRangePicked) {
             loadStatementForDateRange(start, end);
         } else {
             int viewMode = new PrefHelper(getContext()).getIntPreference(Constants.CURRENT_VIEW_MODE, STATEMENT_VIEW_MODE_INDIVIDUAL);
-            List<CashItem> statementList = new CashFlowHelper().getCashItems(viewMode, 0, 0);
+            List<CashItem> statementList = cashFlowHelper.getCashItems(viewMode, 0, 0);
+
+            Log.i(TAG, "loadStatement: items loaded: " + statementList.size());
 
             long totalCount = statementList.size();
             if (totalCount > 0) {
@@ -128,7 +158,6 @@ public class StatementFragment extends Fragment {
             incomeTextView.setText("₹ " + cashFlowHelper.getTotalAmountForType(STATEMENT_TYPE_CREDIT, start, end));
             populateData(statementList);
         }
-
     }
 
     private void populateData(List<CashItem> statementList) {

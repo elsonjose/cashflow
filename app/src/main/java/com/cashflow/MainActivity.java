@@ -136,13 +136,11 @@ public class MainActivity extends AppCompatActivity {
                         // Toast message on menu item clicked
                         if (menuItem.getItemId() == R.id.income) {
                             startActivity(new Intent(MainActivity.this, CashFlowActivity.class).putExtra("type", STATEMENT_TYPE_CREDIT));
-                            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-                            finish();
                         } else {
                             startActivity(new Intent(MainActivity.this, CashFlowActivity.class).putExtra("type", STATEMENT_TYPE_DEBIT));
-                            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-                            finish();
                         }
+                        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                        finish();
                         return true;
                     }
                 });
@@ -227,6 +225,8 @@ public class MainActivity extends AppCompatActivity {
         } else if (statementFragment.isDateRangePicked) {
             statementFragment.dateRangeView.setVisibility(View.GONE);
             statementFragment.isDateRangePicked = false;
+            statementFragment.startDate = 0;
+            statementFragment.endDate = 0;
             filterStart = 0;
             filterEnd = 0;
             setBalanceAmount(filterStart, filterEnd);

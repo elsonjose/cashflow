@@ -7,8 +7,6 @@ import static com.cashflow.helper.Constants.STATEMENT_VIEW_MODE_MONTHLY;
 import static com.cashflow.helper.Constants.STATEMENT_VIEW_MODE_WEEKLY;
 import static com.cashflow.helper.Constants.STATEMENT_VIEW_MODE_YEARLY;
 
-import android.util.Log;
-
 import com.cashflow.db.cashflow.CashFlowDatabase;
 import com.cashflow.db.cashflow.CashItem;
 import com.cashflow.db.cashflow.models.RangeCashItem;
@@ -22,11 +20,24 @@ import java.util.List;
 public class CashFlowHelper {
 
     public static CashFlowDatabase database;
+    public boolean allItemsFetched;
+    List<RangeCashItem> itemList;
+    List<CashItem> cashItemList;
+
+    int currentViewMode = -1;
 
     public CashFlowHelper() {
+        allItemsFetched = false;
+        itemList = new ArrayList<>();
+        cashItemList = new ArrayList<>();
     }
 
     public List<CashItem> getCashItems(int viewMode, long startTime, long endTime) {
+        if (currentViewMode != viewMode) {
+            itemList.clear();
+            cashItemList.clear();
+            currentViewMode = viewMode;
+        }
         switch (viewMode) {
             case STATEMENT_VIEW_MODE_WEEKLY:
                 return getWeeklyCashItem(startTime, endTime);
@@ -47,22 +58,23 @@ public class CashFlowHelper {
         }
     }
 
-
     private List<CashItem> getWeeklyCashItem(long startTime, long endTime) {
 
-        List<RangeCashItem> itemList;
-        List<CashItem> cashItemList = new ArrayList<>();
+        List<RangeCashItem> _itemList;
 
         if (startTime == 0 && endTime == 0) {
-            itemList = database.getCashFlowDao().getWeeklyItems();
+            _itemList = database.getCashFlowDao().getWeeklyItems(Constants.TAKE_COUNT, itemList.size());
         } else {
-            itemList = database.getCashFlowDao().getWeeklyItemsForDateRange(startTime, endTime);
+            _itemList = database.getCashFlowDao().getWeeklyItemsForDateRange(startTime, endTime, Constants.TAKE_COUNT, itemList.size());
         }
+
+        itemList.addAll(_itemList);
+        allItemsFetched = _itemList.isEmpty();
 
         Calendar calendar = Calendar.getInstance();
 
-        for (int i = 0; i < itemList.size(); i++) {
-            RangeCashItem item = itemList.get(i);
+        for (int i = 0; i < _itemList.size(); i++) {
+            RangeCashItem item = _itemList.get(i);
             String[] yearWeekNumber = item.getWeekKey().split("-");
             calendar.clear();
             calendar.set(Calendar.YEAR, Integer.parseInt(yearWeekNumber[0]));
@@ -97,19 +109,21 @@ public class CashFlowHelper {
 
     private List<CashItem> getMonthlyCashItems(long startTime, long endTime) {
 
-        List<RangeCashItem> itemList;
-        List<CashItem> cashItemList = new ArrayList<>();
+        List<RangeCashItem> _itemList;
 
         if (startTime == 0 && endTime == 0) {
-            itemList = database.getCashFlowDao().getMonthlyItems();
+            _itemList = database.getCashFlowDao().getMonthlyItems(Constants.TAKE_COUNT, itemList.size());
         } else {
-            itemList = database.getCashFlowDao().getMonthlyItemsForDateRange(startTime, endTime);
+            _itemList = database.getCashFlowDao().getMonthlyItemsForDateRange(startTime, endTime, Constants.TAKE_COUNT, itemList.size());
         }
+
+        itemList.addAll(_itemList);
+        allItemsFetched = _itemList.isEmpty();
 
         Calendar calendar = Calendar.getInstance();
 
-        for (int i = 0; i < itemList.size(); i++) {
-            RangeCashItem item = itemList.get(i);
+        for (int i = 0; i < _itemList.size(); i++) {
+            RangeCashItem item = _itemList.get(i);
             String[] yearMonthNumber = item.getMonthKey().split("-");
             calendar.clear();
             int processingMonth = Integer.parseInt(yearMonthNumber[1]) - 1;
@@ -158,21 +172,22 @@ public class CashFlowHelper {
 
     private List<CashItem> getYearlyCashItems(long startTime, long endTime) {
 
-        List<RangeCashItem> itemList;
-        List<CashItem> cashItemList = new ArrayList<>();
+        List<RangeCashItem> _itemList;
 
         if (startTime == 0 && endTime == 0) {
-            itemList = database.getCashFlowDao().getYearlyItems();
+            _itemList = database.getCashFlowDao().getYearlyItems(Constants.TAKE_COUNT, itemList.size());
         } else {
-            itemList = database.getCashFlowDao().getYearlyItemsForDateRange(startTime, endTime);
+            _itemList = database.getCashFlowDao().getYearlyItemsForDateRange(startTime, endTime, Constants.TAKE_COUNT, itemList.size());
         }
+
+        itemList.addAll(_itemList);
+        allItemsFetched = _itemList.isEmpty();
 
         Calendar calendar = Calendar.getInstance();
 
-        for (int i = 0; i < itemList.size(); i++) {
-            RangeCashItem item = itemList.get(i);
-
-            String yearNumberKey = itemList.get(i).getYearKey();
+        for (int i = 0; i < _itemList.size(); i++) {
+            RangeCashItem item = _itemList.get(i);
+            String yearNumberKey = _itemList.get(i).getYearKey();
 
             calendar.clear();
             calendar.set(Calendar.YEAR, Integer.parseInt(yearNumberKey));
@@ -209,22 +224,23 @@ public class CashFlowHelper {
 
     private List<CashItem> getIndividualCashItems(long startTime, long endTime) {
 
-        List<CashItem> itemList;
+        List<CashItem> _cashItemList;
 
         if (startTime == 0 && endTime == 0) {
-            itemList = database.getCashFlowDao().getAllItems();
+            _cashItemList = database.getCashFlowDao().getAllItems(Constants.TAKE_COUNT, cashItemList.size());
         } else {
-            itemList = database.getCashFlowDao().getAllItemsForDateRange(startTime, endTime);
+            _cashItemList = database.getCashFlowDao().getAllItemsForDateRange(startTime, endTime, Constants.TAKE_COUNT, cashItemList.size());
         }
 
+        allItemsFetched = _cashItemList.isEmpty();
 
-        for (int i = 0; i < itemList.size(); i++) {
-            CashItem item = itemList.get(i);
-
+        for (int i = 0; i < _cashItemList.size(); i++) {
+            CashItem item = _cashItemList.get(i);
             item.setViewMode(STATEMENT_VIEW_MODE_INDIVIDUAL);
+            cashItemList.add(item);
         }
 
-        return itemList;
+        return cashItemList;
     }
 
 
